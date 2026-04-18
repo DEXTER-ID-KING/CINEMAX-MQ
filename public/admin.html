@@ -9,572 +9,193 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: linear-gradient(135deg, #f5f7fc 0%, #eef2f9 100%);
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
             font-family: 'Inter', sans-serif;
-            padding: 2rem;
-            transition: background 0.2s, color 0.2s;
-        }
-        body.dark {
-            background: #121212;
             color: #e0e0e0;
         }
-        body.dark .card {
-            background: #1e1e2a;
-            border-color: #2c2c38;
-        }
-        body.dark .input-group label {
-            color: #bcb8b0;
-        }
-        body.dark .input-group input, body.dark .input-group select, body.dark .input-group textarea {
-            background: #2a2a2e;
-            border-color: #3a3a44;
-            color: #f0f0f0;
-        }
-        body.dark .admin-movie-card {
-            background: #1e1e2a;
-            border-color: #2c2c38;
-        }
-        body.dark .card-meta {
-            color: #9ca3af;
-        }
-        body.dark .episode-card {
-            background: #2a2a2e;
-        }
-        body.dark .add-episode-form {
-            background: #1e1e2a;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .header-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, #e63946, #b91c2c);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: inline-block;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-        }
-        .icon-btn {
-            background: rgba(230,57,70,0.1);
-            border: 1px solid rgba(230,57,70,0.3);
-            border-radius: 50px;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-            color: #e63946;
-        }
-        .icon-btn:hover {
-            background: #e63946;
-            color: white;
-            transform: scale(1.02);
-        }
-        .sub {
-            color: #4a5568;
-            margin-bottom: 2rem;
-        }
-        body.dark .sub {
-            color: #bcb8b0;
-        }
-        .card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(2px);
-            border-radius: 32px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
-            border: 1px solid rgba(230,57,70,0.2);
-            transition: 0.2s;
-        }
-        .card:hover {
-            box-shadow: 0 25px 40px -12px rgba(0,0,0,0.15);
-        }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .input-group label {
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: #2d3748;
-            letter-spacing: -0.2px;
-        }
+        .admin-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .admin-header { text-align: center; margin-bottom: 2rem; }
+        .admin-header h1 { font-size: 2.5rem; background: linear-gradient(135deg, #e63946, #ff6b6b); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .card { background: rgba(30,30,42,0.95); border-radius: 24px; padding: 2rem; margin-bottom: 2rem; border: 1px solid rgba(230,57,70,0.2); }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: #9ca3af; }
         .input-group input, .input-group select, .input-group textarea {
-            padding: 12px 16px;
-            border-radius: 28px;
-            border: 1.5px solid #e2e8f0;
-            font-family: inherit;
-            outline: none;
-            transition: 0.2s;
-            background: white;
+            padding: 12px 16px; border-radius: 16px; border: 1.5px solid #2c2c38;
+            background: #1e1e2a; color: #e0e0e0; font-family: inherit; outline: none;
         }
-        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
-            border-color: #e63946;
-            box-shadow: 0 0 0 3px rgba(230,57,70,0.2);
+        .input-group input:focus { border-color: #e63946; box-shadow: 0 0 0 3px rgba(230,57,70,0.2); }
+        .btn { background: linear-gradient(135deg, #e63946, #c1121f); border: none; color: white; padding: 12px 28px; border-radius: 40px; font-weight: 700; cursor: pointer; margin-right: 1rem; }
+        .btn-secondary { background: linear-gradient(135deg, #4a5568, #2d3748); }
+        .movies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .movie-card { background: #1e1e2a; border-radius: 20px; overflow: hidden; border: 1px solid #2c2c38; }
+        .movie-card img { width: 100%; height: 150px; object-fit: cover; }
+        .movie-info { padding: 1rem; }
+        .movie-title { font-weight: 700; margin-bottom: 5px; }
+        .movie-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .edit-btn, .delete-btn { flex: 1; padding: 8px; border-radius: 12px; border: none; cursor: pointer; font-weight: 600; }
+        .edit-btn { background: #2ecc71; color: white; }
+        .delete-btn { background: #e63946; color: white; }
+        .status-msg { background: rgba(230,57,70,0.15); padding: 1rem; border-radius: 16px; text-align: center; margin-top: 1rem; }
+        .pin-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 10000;
+            display: flex; align-items: center; justify-content: center;
         }
-        .checkbox-group {
-            flex-direction: row;
-            align-items: center;
-            gap: 12px;
+        .pin-box {
+            background: #1e1e2a; padding: 2rem; border-radius: 30px;
+            text-align: center; border: 1px solid #e63946;
         }
-        .file-input {
-            padding: 8px 0;
-        }
-        .btn {
-            background: #e63946;
-            border: none;
-            color: white;
-            padding: 12px 28px;
-            border-radius: 40px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 1rem;
-            margin-right: 1rem;
-            transition: 0.2s;
-            font-size: 0.95rem;
-        }
-        .btn-secondary {
-            background: #4a5568;
-        }
-        .btn-secondary:hover { background: #2d3748; transform: translateY(-2px); }
-        .btn:hover { background: #c1121f; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(230,57,70,0.3); }
-        
-        .episodes-section {
-            margin-top: 2rem;
-            border-top: 2px dashed #e2e8f0;
-            padding-top: 1.5rem;
-        }
-        .episode-card {
-            background: #f8fafc;
-            border-radius: 24px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid #e2e8f0;
-        }
-        .episode-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        .episode-title {
-            font-weight: 700;
-            color: #e63946;
-        }
-        .episode-actions button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-left: 8px;
-            padding: 4px 8px;
-            border-radius: 30px;
-        }
-        .episode-actions .edit-ep { color: #2ecc71; }
-        .episode-actions .delete-ep { color: #e63946; }
-        .add-episode-form {
-            background: #ffffff;
-            border-radius: 28px;
-            padding: 1rem;
-            margin-top: 1rem;
-            border: 1px solid #e2e8f0;
-        }
-        .episode-form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-        
-        .movies-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.8rem;
-            margin-top: 2rem;
-        }
-        .admin-movie-card {
-            background: white;
-            border-radius: 28px;
-            overflow: hidden;
-            border: 1px solid #eef2f9;
-            transition: all 0.25s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-        }
-        .admin-movie-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1);
-            border-color: #e6394630;
-        }
-        .admin-movie-card img {
-            width: 100%;
-            height: 170px;
-            object-fit: cover;
-        }
-        .card-info {
-            padding: 1.2rem;
-        }
-        .card-title {
-            font-weight: 800;
-            font-size: 1.1rem;
-        }
-        .card-meta {
-            font-size: 0.7rem;
-            color: #718096;
-            margin: 8px 0;
-        }
-        .card-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 12px;
-        }
-        .edit-btn, .delete-btn {
-            background: none;
-            border: none;
-            font-size: 0.85rem;
-            cursor: pointer;
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-        .edit-btn { background: #e9f9ef; color: #2ecc71; }
-        .delete-btn { background: #fee2e2; color: #e63946; }
-        .edit-btn:hover, .delete-btn:hover { transform: scale(1.02); }
-        .status-msg {
-            background: #e6394610;
-            padding: 0.8rem;
-            border-radius: 60px;
-            text-align: center;
-            margin-top: 1rem;
-            font-weight: 500;
-        }
-        @media (max-width: 680px) {
-            body { padding: 1rem; }
-            .form-grid { grid-template-columns: 1fr; }
-        }
+        .pin-box input { padding: 15px; font-size: 1.5rem; text-align: center; border-radius: 20px; border: none; background: #2c2c38; color: white; margin: 1rem 0; }
+        .episode-card { background: #2a2a2e; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem; }
+        @media (max-width: 768px) { .admin-container { padding: 1rem; } .form-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="header-bar">
-        <h1><i class="fas fa-user-shield"></i> CineMax Admin Panel</h1>
-        <div class="action-buttons">
-            <button class="icon-btn" id="darkModeToggle"><i class="fas fa-moon"></i> Dark/Light</button>
-            <button class="icon-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
-        </div>
-    </div>
-    <div class="sub">Manage movies & TV series — upload MP4 videos (up to 2GB), add seasons/episodes, delete content. Changes sync instantly with main site.</div>
-
-    <!-- Add / Edit Form -->
-    <div class="card">
-        <h2 style="margin-bottom: 1.2rem;"><i class="fas fa-plus-circle" style="color:#e63946;"></i> Add / Edit Movie or Series</h2>
-        <div class="form-grid" id="adminForm">
-            <div class="input-group"><label>Title *</label><input type="text" id="title" placeholder="e.g., Avengers: Doomsday"></div>
-            <div class="input-group"><label>Year</label><input type="number" id="year" value="2025"></div>
-            <div class="input-group"><label>Rating (0-10)</label><input type="number" step="0.1" id="rating" value="8.5"></div>
-            <div class="input-group"><label>Quality (e.g., 4K, 1080p)</label><input type="text" id="quality" placeholder="4K HDR"></div>
-            <div class="input-group"><label>Genre</label><input type="text" id="genre" placeholder="Action, Thriller"></div>
-            <div class="input-group"><label>Language</label><input type="text" id="language" placeholder="English"></div>
-            <div class="input-group"><label>Type</label><select id="type"><option value="movie">🎬 Movie</option><option value="tv">📺 TV Series</option></select></div>
-            <div class="input-group checkbox-group"><label><input type="checkbox" id="trending"> 🔥 Trending</label></div>
-            <div class="input-group checkbox-group"><label><input type="checkbox" id="latest"> 🆕 Latest Upload</label></div>
-            <div class="input-group"><label>Poster URL</label><input type="text" id="poster" placeholder="https://image.tmdb.org/t/p/w500/xxx.jpg"></div>
-            <div class="input-group"><label>📁 Upload MP4 Video (max 2GB)</label><input type="file" id="videoFile" accept="video/mp4" class="file-input"></div>
-            <div class="input-group"><label>Direct Download Link (optional)</label><input type="text" id="directLink" placeholder="https://files.catbox.moe/video.mp4"></div>
-            <div class="input-group"><label>Telegram Link</label><input type="text" id="telegramLink" placeholder="https://t.me/..."></div>
-            <div class="input-group"><label>Google Drive Link</label><input type="text" id="driveLink" placeholder="https://drive.google.com/..."></div>
-            <div class="input-group"><label>Description</label><textarea id="description" rows="2" placeholder="Movie plot..."></textarea></div>
-        </div>
-        
-        <!-- Episodes Management (visible only for TV series) -->
-        <div id="episodesContainer" style="display: none;" class="episodes-section">
-            <h3><i class="fas fa-tv"></i> Seasons & Episodes</h3>
-            <div id="episodesList"></div>
-            <div id="addEpisodeForm" class="add-episode-form">
-                <h4>Add New Episode</h4>
-                <div class="episode-form-grid">
-                    <input type="number" id="epSeason" placeholder="Season" min="1" step="1">
-                    <input type="number" id="epNumber" placeholder="Episode Number" min="1" step="1">
-                    <input type="text" id="epTitle" placeholder="Episode Title (optional)">
-                    <input type="file" id="epVideoFile" accept="video/mp4" class="file-input">
-                    <input type="text" id="epDirectLink" placeholder="Direct Download Link (optional)">
-                    <input type="text" id="epTelegramLink" placeholder="Telegram Link (optional)">
-                    <input type="text" id="epDriveLink" placeholder="Drive Link (optional)">
-                </div>
-                <button class="btn" id="addEpisodeBtn" style="margin-top:0.5rem;">+ Add Episode</button>
-            </div>
-        </div>
-
+<div id="pinOverlay" class="pin-overlay">
+    <div class="pin-box">
+        <i class="fas fa-lock" style="font-size: 3rem; color: #e63946;"></i>
+        <h2>Admin Access Required</h2>
+        <p>Enter PIN to continue</p>
+        <input type="password" id="pinInput" maxlength="6" placeholder="Enter PIN">
         <div>
-            <button class="btn" id="saveBtn"><i class="fas fa-save"></i> Save Movie/Series</button>
-            <button class="btn btn-secondary" id="clearBtn"><i class="fas fa-eraser"></i> Clear Form</button>
+            <button id="pinSubmitBtn" class="btn">Verify</button>
         </div>
-        <input type="hidden" id="editId" value="">
-        <div class="status-msg" id="statusMsg"></div>
+        <p id="pinError" style="color: #e63946; margin-top: 1rem; display: none;">Invalid PIN!</p>
     </div>
+</div>
 
-    <!-- All Movies & Series List -->
-    <div class="card">
-        <h2 style="margin-bottom: 1rem;"><i class="fas fa-database"></i> All Movies & Series</h2>
-        <div id="moviesListContainer" class="movies-list"></div>
+<div id="adminContent" style="display: none;">
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-user-shield"></i> CineMax Admin Panel</h1>
+            <p>Manage Movies, TV Series, Episodes | Powered by MongoDB + Gofile</p>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 1.5rem;"><i class="fas fa-plus-circle"></i> Add / Edit Movie</h2>
+            <div class="form-grid">
+                <div class="input-group"><label>Title *</label><input type="text" id="title" placeholder="Movie title"></div>
+                <div class="input-group"><label>Year</label><input type="number" id="year" value="2026"></div>
+                <div class="input-group"><label>Rating</label><input type="number" step="0.1" id="rating" value="8.5"></div>
+                <div class="input-group"><label>Quality</label><input type="text" id="quality" placeholder="4K, 1080p"></div>
+                <div class="input-group"><label>Genre</label><input type="text" id="genre" placeholder="Action, Drama"></div>
+                <div class="input-group"><label>Language</label><input type="text" id="language" placeholder="English"></div>
+                <div class="input-group"><label>Type</label><select id="type"><option value="movie">🎬 Movie</option><option value="tv">📺 TV Series</option></select></div>
+                <div class="input-group"><label><input type="checkbox" id="trending"> 🔥 Trending</label></div>
+                <div class="input-group"><label><input type="checkbox" id="latest"> 🆕 Latest</label></div>
+                <div class="input-group"><label>Poster URL</label><input type="text" id="poster" placeholder="https://..."></div>
+                <div class="input-group"><label>Direct Video URL</label><input type="text" id="videoUrl" placeholder="https://..."></div>
+                <div class="input-group"><label>Telegram Link</label><input type="text" id="telegramLink" placeholder="https://t.me/..."></div>
+                <div class="input-group"><label>Drive Link</label><input type="text" id="driveLink" placeholder="https://drive.google.com/..."></div>
+                <div class="input-group"><label>Description</label><textarea id="description" rows="3"></textarea></div>
+            </div>
+            
+            <div id="episodesSection" style="display: none; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #2c2c38;">
+                <h3><i class="fas fa-tv"></i> Episodes</h3>
+                <div id="episodesList"></div>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+                    <input type="number" id="epSeason" placeholder="Season" style="padding: 10px; border-radius: 12px; background: #2a2a2e; border: none; color: white;">
+                    <input type="number" id="epNumber" placeholder="Episode" style="padding: 10px; border-radius: 12px; background: #2a2a2e; border: none; color: white;">
+                    <input type="text" id="epTitle" placeholder="Episode Title" style="padding: 10px; border-radius: 12px; background: #2a2a2e; border: none; color: white; flex: 1;">
+                    <input type="text" id="epVideoUrl" placeholder="Video URL" style="padding: 10px; border-radius: 12px; background: #2a2a2e; border: none; color: white; flex: 1;">
+                    <button id="addEpisodeBtn" class="btn" style="margin: 0;">+ Add</button>
+                </div>
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <button class="btn" id="saveBtn"><i class="fas fa-save"></i> Save Movie</button>
+                <button class="btn btn-secondary" id="clearBtn"><i class="fas fa-eraser"></i> Clear</button>
+            </div>
+            <input type="hidden" id="editId">
+            <div id="statusMsg" class="status-msg" style="display: none;"></div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-database"></i> All Movies</h2>
+            <div id="moviesGrid" class="movies-grid"></div>
+        </div>
     </div>
 </div>
 
 <script>
-    const STORAGE_KEY = "cinemax_movies_db";
+    const ADMIN_PIN = '200727';
+    const API_URL = window.location.origin + '/api';
     let moviesArray = [];
-    const DB_NAME = "CineMaxVideoDB";
-    const STORE_NAME = "videoBlobs";
-    let db = null;
-    let currentEditId = null;
     let tempEpisodes = [];
+    let currentEditId = null;
 
-    function initIndexedDB() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, 1);
-            request.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    db.createObjectStore(STORE_NAME);
-                }
-            };
-            request.onsuccess = (e) => { db = e.target.result; resolve(); };
-            request.onerror = (e) => reject(e);
-        });
+    // PIN Verification
+    function verifyPin() {
+        const pin = document.getElementById('pinInput').value;
+        if (pin === ADMIN_PIN) {
+            localStorage.setItem('admin_auth', 'true');
+            document.getElementById('pinOverlay').style.display = 'none';
+            document.getElementById('adminContent').style.display = 'block';
+            loadMovies();
+        } else {
+            document.getElementById('pinError').style.display = 'block';
+        }
     }
 
-    async function storeVideoBlob(blob) {
-        if (!db) await initIndexedDB();
-        const id = 'vid_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readwrite');
-            const store = tx.objectStore(STORE_NAME);
-            const req = store.put(blob, id);
-            req.onsuccess = () => resolve(id);
-            req.onerror = () => reject(req.error);
-        });
+    // Check existing auth
+    if (localStorage.getItem('admin_auth') === 'true') {
+        document.getElementById('pinOverlay').style.display = 'none';
+        document.getElementById('adminContent').style.display = 'block';
+        loadMovies();
     }
 
-    async function deleteVideoBlob(blobId) {
-        if (!blobId) return;
-        if (!db) await initIndexedDB();
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readwrite');
-            const store = tx.objectStore(STORE_NAME);
-            const req = store.delete(blobId);
-            req.onsuccess = resolve;
-            req.onerror = reject;
+    document.getElementById('pinSubmitBtn').addEventListener('click', verifyPin);
+    document.getElementById('pinInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyPin(); });
+
+    // API Helper with auth
+    async function apiCall(url, options = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-pin': ADMIN_PIN,
+                ...options.headers
+            }
         });
+        if (!response.ok) throw new Error(await response.text());
+        return response.json();
     }
 
     async function loadMovies() {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-            moviesArray = JSON.parse(stored);
-        } else {
-            moviesArray = [
-                { id: 1, title: "Avengers: Doomsday", year: 2026, rating: 8.9, quality: "4K HDR", genre: "Action", language: "English", type: "movie", isTrending: true, isLatest: false, posterImg: "https://image.tmdb.org/t/p/w500/7RyHsO4yDXtBv1zUU3mTpBuQUrO.jpg", description: "The Avengers face their greatest threat yet.", videoBlobId: null, videoUrl: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4", directLink: "https://files.catbox.moe/dazxqu.mp4", telegramLink: "https://t.me/dassabtth", driveLink: "https://files.catbox.moe/dazxqu.mp4", episodes: [] },
-                { id: 2, title: "Mission: Impossible 8", year: 2025, rating: 8.5, quality: "4K", genre: "Action", language: "English", type: "movie", isTrending: true, isLatest: false, posterImg: "https://image.tmdb.org/t/p/w500/8j58iEBw9pOXw2M8Zmq8i9qG9bD.jpg", description: "Ethan Hunt returns.", videoBlobId: null, videoUrl: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4", directLink: "https://files.catbox.moe/dazxqu.mp4", telegramLink: "https://t.me/dassabtth", driveLink: "https://files.catbox.moe/dazxqu.mp4", episodes: [] },
-                { id: 3, title: "Squid Game S3", year: 2026, rating: 7.9, quality: "1080p", genre: "Thriller", language: "Korean", type: "tv", isTrending: true, isLatest: false, posterImg: "https://image.tmdb.org/t/p/w500/7iHn3U9Vv3g9Qx2fQ4Q7Qw6Q9Q.jpg", description: "New deadly games.", videoBlobId: null, videoUrl: "", directLink: "", telegramLink: "https://t.me/dassabtth", driveLink: "", episodes: [] },
-                { id: 4, title: "Dune: Prophecy", year: 2026, rating: 8.2, quality: "4K HDR", genre: "Sci-Fi", language: "English", type: "tv", isTrending: false, isLatest: true, posterImg: "https://image.tmdb.org/t/p/w500/8bRIfPG9u8l7qJ2Q5q9Q9Q9Q9Q.jpg", description: "Bene Gesserit rise.", videoBlobId: null, videoUrl: "", directLink: "", telegramLink: "https://t.me/dassabtth", driveLink: "", episodes: [] },
-                { id: 5, title: "The Last of Us S2", year: 2025, rating: 9.1, quality: "4K", genre: "Drama", language: "English", type: "tv", isTrending: false, isLatest: true, posterImg: "https://image.tmdb.org/t/p/w500/5pQ9Q9Q9Q9Q9Q9Q9Q9Q9Q9Q.jpg", description: "Ellie's revenge.", videoBlobId: null, videoUrl: "", directLink: "", telegramLink: "https://t.me/dassabtth", driveLink: "", episodes: [] }
-            ];
-            saveMoviesToLocal();
+        try {
+            const response = await fetch(`${API_URL}/movies`);
+            moviesArray = await response.json();
+            renderMoviesGrid();
+        } catch (error) {
+            console.error(error);
+            showStatus('Error loading movies: ' + error.message, 'error');
         }
-        renderMovieList();
     }
 
-    function saveMoviesToLocal() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(moviesArray));
-        window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY, newValue: JSON.stringify(moviesArray) }));
-    }
-
-    function renderMovieList() {
-        const container = document.getElementById('moviesListContainer');
-        if (!container) return;
+    function renderMoviesGrid() {
+        const container = document.getElementById('moviesGrid');
+        if (!moviesArray.length) {
+            container.innerHTML = '<p style="text-align: center;">No movies yet. Add your first movie!</p>';
+            return;
+        }
         container.innerHTML = moviesArray.map(movie => `
-            <div class="admin-movie-card" data-id="${movie.id}">
-                <img src="${movie.posterImg || 'https://via.placeholder.com/300x170'}" onerror="this.src='https://via.placeholder.com/300x170'">
-                <div class="card-info">
-                    <div class="card-title">${escapeHtml(movie.title)}</div>
-                    <div class="card-meta">${movie.genre} | ${movie.language} | ${movie.type} | ${movie.year} ${movie.type === 'tv' ? ` | ${movie.episodes?.length || 0} episodes` : ''}</div>
-                    <div class="card-actions">
-                        <button class="edit-btn" data-id="${movie.id}"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="delete-btn" data-id="${movie.id}"><i class="fas fa-trash-alt"></i> Delete</button>
+            <div class="movie-card">
+                <img src="${movie.posterImg || 'https://via.placeholder.com/300x150/1a1a2e/e63946?text=No+Poster'}" onerror="this.src='https://via.placeholder.com/300x150/1a1a2e/e63946?text=No+Poster'">
+                <div class="movie-info">
+                    <div class="movie-title">${escapeHtml(movie.title)}</div>
+                    <div style="font-size: 0.8rem; color: #9ca3af;">${movie.genre || ''} | ${movie.year || ''} | ${movie.type}</div>
+                    <div class="movie-actions">
+                        <button class="edit-btn" onclick="editMovie('${movie._id}')"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="delete-btn" onclick="deleteMovie('${movie._id}')"><i class="fas fa-trash"></i> Delete</button>
                     </div>
                 </div>
             </div>
         `).join('');
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', () => fillFormForEdit(parseInt(btn.getAttribute('data-id'))));
-        });
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                if (confirm('Permanently delete this movie/series?')) {
-                    const id = parseInt(btn.getAttribute('data-id'));
-                    const movie = moviesArray.find(m => m.id === id);
-                    if (movie && movie.videoBlobId) await deleteVideoBlob(movie.videoBlobId);
-                    if (movie && movie.episodes) {
-                        for (const ep of movie.episodes) {
-                            if (ep.videoBlobId) await deleteVideoBlob(ep.videoBlobId);
-                        }
-                    }
-                    moviesArray = moviesArray.filter(m => m.id !== id);
-                    saveMoviesToLocal();
-                    renderMovieList();
-                    showStatus(`✅ Deleted. Main site updated.`);
-                    clearForm();
-                }
-            });
-        });
     }
 
-    function renderEpisodesList(episodes) {
-        const container = document.getElementById('episodesList');
-        if (!container) return;
-        if (!episodes.length) {
-            container.innerHTML = '<p>No episodes added yet. Use the form below to add seasons/episodes.</p>';
-            return;
-        }
-        const seasons = {};
-        episodes.forEach(ep => {
-            if (!seasons[ep.season]) seasons[ep.season] = [];
-            seasons[ep.season].push(ep);
-        });
-        let html = '';
-        for (let s in seasons) {
-            html += `<div style="margin-bottom:1rem;"><h4>Season ${s}</h4>`;
-            seasons[s].forEach(ep => {
-                html += `<div class="episode-card">
-                            <div class="episode-header">
-                                <span class="episode-title">Episode ${ep.episode}${ep.title ? `: ${escapeHtml(ep.title)}` : ''}</span>
-                                <div class="episode-actions">
-                                    <button class="edit-ep" data-ep-index="${ep.tempId || ep.id}"><i class="fas fa-edit"></i> Edit</button>
-                                    <button class="delete-ep" data-ep-index="${ep.tempId || ep.id}"><i class="fas fa-trash-alt"></i> Delete</button>
-                                </div>
-                            </div>
-                            <div style="font-size:0.8rem; color:#718096;">${ep.videoBlobId ? '📹 Video uploaded' : (ep.videoUrl ? '🔗 Video URL' : 'No video')}</div>
-                        </div>`;
-            });
-            html += `</div>`;
-        }
-        container.innerHTML = html;
-        document.querySelectorAll('.edit-ep').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const idx = btn.getAttribute('data-ep-index');
-                const episode = episodes.find(e => (e.tempId && e.tempId == idx) || (e.id && e.id == idx));
-                if (episode) fillEpisodeFormForEdit(episode);
-            });
-        });
-        document.querySelectorAll('.delete-ep').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const idx = btn.getAttribute('data-ep-index');
-                const index = episodes.findIndex(e => (e.tempId && e.tempId == idx) || (e.id && e.id == idx));
-                if (index !== -1) {
-                    episodes.splice(index, 1);
-                    renderEpisodesList(episodes);
-                    showStatus('Episode removed (not saved yet). Click Save to confirm.');
-                }
-            });
-        });
-    }
-
-    function fillEpisodeFormForEdit(episode) {
-        document.getElementById('epSeason').value = episode.season;
-        document.getElementById('epNumber').value = episode.episode;
-        document.getElementById('epTitle').value = episode.title || '';
-        document.getElementById('epDirectLink').value = episode.directLink || '';
-        document.getElementById('epTelegramLink').value = episode.telegramLink || '';
-        document.getElementById('epDriveLink').value = episode.driveLink || '';
-        document.getElementById('addEpisodeBtn').setAttribute('data-edit-ep', episode.tempId || episode.id);
-        document.getElementById('addEpisodeBtn').innerText = 'Update Episode';
-    }
-
-    async function addOrUpdateEpisode() {
-        const season = parseInt(document.getElementById('epSeason').value);
-        const episodeNum = parseInt(document.getElementById('epNumber').value);
-        if (isNaN(season) || isNaN(episodeNum)) { alert('Season and Episode number required'); return; }
-        const title = document.getElementById('epTitle').value;
-        const directLink = document.getElementById('epDirectLink').value;
-        const telegramLink = document.getElementById('epTelegramLink').value;
-        const driveLink = document.getElementById('epDriveLink').value;
-        const fileInput = document.getElementById('epVideoFile');
-        let videoBlobId = null;
-        let videoUrl = null;
-        if (fileInput.files && fileInput.files[0]) {
-            const file = fileInput.files[0];
-            if (file.type === 'video/mp4') {
-                videoBlobId = await storeVideoBlob(file);
-                videoUrl = null;
-            } else {
-                alert('Please upload an MP4 file.');
-                return;
-            }
-        }
-        const editEpId = document.getElementById('addEpisodeBtn').getAttribute('data-edit-ep');
-        if (editEpId) {
-            const index = tempEpisodes.findIndex(e => (e.tempId && e.tempId == editEpId) || (e.id && e.id == editEpId));
-            if (index !== -1) {
-                const oldEp = tempEpisodes[index];
-                if (oldEp.videoBlobId && videoBlobId !== oldEp.videoBlobId) await deleteVideoBlob(oldEp.videoBlobId);
-                tempEpisodes[index] = { ...oldEp, season, episode: episodeNum, title, directLink, telegramLink, driveLink, videoBlobId: videoBlobId !== null ? videoBlobId : oldEp.videoBlobId, videoUrl: videoUrl !== null ? videoUrl : oldEp.videoUrl };
-            }
-            document.getElementById('addEpisodeBtn').removeAttribute('data-edit-ep');
-            document.getElementById('addEpisodeBtn').innerText = '+ Add Episode';
-        } else {
-            tempEpisodes.push({ tempId: Date.now() + Math.random(), season, episode: episodeNum, title, directLink, telegramLink, driveLink, videoBlobId, videoUrl });
-        }
-        document.getElementById('epSeason').value = '';
-        document.getElementById('epNumber').value = '';
-        document.getElementById('epTitle').value = '';
-        document.getElementById('epDirectLink').value = '';
-        document.getElementById('epTelegramLink').value = '';
-        document.getElementById('epDriveLink').value = '';
-        document.getElementById('epVideoFile').value = '';
-        renderEpisodesList(tempEpisodes);
-        showStatus('Episode added/updated. Click Save to commit series.');
-    }
-
-    function toggleEpisodesSection() {
-        const type = document.getElementById('type').value;
-        const container = document.getElementById('episodesContainer');
-        if (type === 'tv') {
-            container.style.display = 'block';
-            if (currentEditId) {
-                const movie = moviesArray.find(m => m.id === currentEditId);
-                if (movie && movie.episodes) tempEpisodes = JSON.parse(JSON.stringify(movie.episodes));
-                else tempEpisodes = [];
-            } else {
-                tempEpisodes = [];
-            }
-            renderEpisodesList(tempEpisodes);
-        } else {
-            container.style.display = 'none';
-            tempEpisodes = [];
-        }
-    }
-
-    async function fillFormForEdit(id) {
-        const movie = moviesArray.find(m => m.id === id);
+    async function editMovie(id) {
+        const movie = moviesArray.find(m => m._id === id);
         if (!movie) return;
         currentEditId = id;
         document.getElementById('title').value = movie.title || '';
@@ -587,149 +208,199 @@
         document.getElementById('trending').checked = movie.isTrending || false;
         document.getElementById('latest').checked = movie.isLatest || false;
         document.getElementById('poster').value = movie.posterImg || '';
-        document.getElementById('directLink').value = movie.directLink || '';
+        document.getElementById('videoUrl').value = movie.videoUrl || movie.directLink || '';
         document.getElementById('telegramLink').value = movie.telegramLink || '';
         document.getElementById('driveLink').value = movie.driveLink || '';
         document.getElementById('description').value = movie.description || '';
-        document.getElementById('editId').value = movie.id;
-        document.getElementById('videoFile').value = '';
-        if (movie.type === 'tv') {
-            tempEpisodes = movie.episodes ? JSON.parse(JSON.stringify(movie.episodes)) : [];
-            renderEpisodesList(tempEpisodes);
-        } else {
-            tempEpisodes = [];
-        }
+        document.getElementById('editId').value = id;
+        
+        tempEpisodes = movie.episodes ? [...movie.episodes] : [];
+        renderEpisodesList();
         toggleEpisodesSection();
-        showStatus(`✏️ Editing: ${movie.title}`);
+        showStatus(`Editing: ${movie.title}`, 'success');
     }
 
-    function clearForm() {
-        document.getElementById('adminForm').reset();
-        document.getElementById('editId').value = '';
-        document.getElementById('trending').checked = false;
-        document.getElementById('latest').checked = false;
-        document.getElementById('type').value = 'movie';
-        document.getElementById('videoFile').value = '';
+    async function deleteMovie(id) {
+        if (!confirm('Are you sure you want to delete this movie?')) return;
+        try {
+            await apiCall(`${API_URL}/movies/${id}`, { method: 'DELETE' });
+            showStatus('Movie deleted successfully!', 'success');
+            loadMovies();
+            clearForm();
+        } catch (error) {
+            showStatus('Error deleting movie: ' + error.message, 'error');
+        }
+    }
+
+    function toggleEpisodesSection() {
+        const type = document.getElementById('type').value;
+        const section = document.getElementById('episodesSection');
+        section.style.display = type === 'tv' ? 'block' : 'none';
+        if (type !== 'tv') tempEpisodes = [];
+        renderEpisodesList();
+    }
+
+    function renderEpisodesList() {
+        const container = document.getElementById('episodesList');
+        if (!tempEpisodes.length) {
+            container.innerHTML = '<p>No episodes added yet.</p>';
+            return;
+        }
+        const seasons = {};
+        tempEpisodes.forEach(ep => {
+            if (!seasons[ep.season]) seasons[ep.season] = [];
+            seasons[ep.season].push(ep);
+        });
+        let html = '';
+        for (let s in seasons) {
+            html += `<div style="margin-bottom: 1rem;"><strong>Season ${s}</strong>`;
+            seasons[s].forEach((ep, idx) => {
+                html += `<div class="episode-card">
+                            Episode ${ep.episode}: ${ep.title || 'Untitled'}
+                            <button onclick="removeEpisode(${idx})" style="float: right; background: #e63946; border: none; color: white; padding: 4px 12px; border-radius: 20px; cursor: pointer;">Remove</button>
+                         </div>`;
+            });
+            html += `</div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function removeEpisode(index) {
+        tempEpisodes.splice(index, 1);
+        renderEpisodesList();
+    }
+
+    function addEpisode() {
+        const season = parseInt(document.getElementById('epSeason').value);
+        const episode = parseInt(document.getElementById('epNumber').value);
+        const title = document.getElementById('epTitle').value;
+        const videoUrl = document.getElementById('epVideoUrl').value;
+        
+        if (isNaN(season) || isNaN(episode)) {
+            alert('Season and Episode numbers are required');
+            return;
+        }
+        
+        tempEpisodes.push({
+            id: Date.now().toString(),
+            season,
+            episode,
+            title,
+            videoUrl,
+            directLink: videoUrl,
+            views: 0
+        });
+        
         document.getElementById('epSeason').value = '';
         document.getElementById('epNumber').value = '';
         document.getElementById('epTitle').value = '';
-        document.getElementById('epDirectLink').value = '';
-        document.getElementById('epTelegramLink').value = '';
-        document.getElementById('epDriveLink').value = '';
-        document.getElementById('epVideoFile').value = '';
-        tempEpisodes = [];
-        currentEditId = null;
-        toggleEpisodesSection();
-        showStatus('Form cleared. Add new movie/series.');
+        document.getElementById('epVideoUrl').value = '';
+        renderEpisodesList();
+        showStatus('Episode added. Click Save to commit.', 'success');
     }
 
-    async function saveCurrentMovie() {
+    async function saveMovie() {
         const title = document.getElementById('title').value.trim();
-        if (!title) { alert('Title is required'); return; }
-        const editId = document.getElementById('editId').value;
-        const id = editId ? parseInt(editId) : (moviesArray.length > 0 ? Math.max(...moviesArray.map(m => m.id)) + 1 : 100);
+        if (!title) {
+            alert('Title is required');
+            return;
+        }
         
-        let videoBlobId = null;
-        let videoUrl = null;
-        const fileInput = document.getElementById('videoFile');
-        if (fileInput.files && fileInput.files[0]) {
-            const file = fileInput.files[0];
-            if (file.type === 'video/mp4') {
-                videoBlobId = await storeVideoBlob(file);
-                videoUrl = null;
-            } else {
-                alert('Please upload an MP4 file.');
-                return;
-            }
-        } else {
-            if (editId) {
-                const existing = moviesArray.find(m => m.id === id);
-                if (existing) {
-                    videoBlobId = existing.videoBlobId;
-                    videoUrl = existing.videoUrl;
-                }
-            }
-        }
-
-        const type = document.getElementById('type').value;
-        let episodesToSave = [];
-        if (type === 'tv') {
-            episodesToSave = tempEpisodes.map(ep => {
-                const newEp = { ...ep };
-                delete newEp.tempId;
-                if (!newEp.id) newEp.id = Date.now() + Math.random();
-                return newEp;
-            });
-        }
-
-        const newMovie = {
-            id: id,
-            title: title,
+        const movieData = {
+            title,
             year: parseInt(document.getElementById('year').value) || 2025,
             rating: parseFloat(document.getElementById('rating').value) || 7.0,
             quality: document.getElementById('quality').value || 'HD',
-            genre: document.getElementById('genre').value || 'General',
+            genre: document.getElementById('genre').value || '',
             language: document.getElementById('language').value || 'English',
-            type: type,
+            type: document.getElementById('type').value,
             isTrending: document.getElementById('trending').checked,
             isLatest: document.getElementById('latest').checked,
-            posterImg: document.getElementById('poster').value || 'https://via.placeholder.com/300x450',
-            videoBlobId: videoBlobId,
-            videoUrl: videoUrl || '',
-            directLink: document.getElementById('directLink').value || '',
+            posterImg: document.getElementById('poster').value || '',
+            videoUrl: document.getElementById('videoUrl').value || '',
+            directLink: document.getElementById('videoUrl').value || '',
             telegramLink: document.getElementById('telegramLink').value || '',
             driveLink: document.getElementById('driveLink').value || '',
-            description: document.getElementById('description').value || 'No description',
-            episodes: episodesToSave
+            description: document.getElementById('description').value || '',
+            episodes: document.getElementById('type').value === 'tv' ? tempEpisodes : []
         };
-        if (editId) {
-            const index = moviesArray.findIndex(m => m.id === id);
-            if (index !== -1) moviesArray[index] = newMovie;
-            else moviesArray.push(newMovie);
-        } else {
-            moviesArray.push(newMovie);
+        
+        const editId = document.getElementById('editId').value;
+        let url = `${API_URL}/movies`;
+        let method = 'POST';
+        
+        if (editId && editId !== 'undefined') {
+            movieData.id = editId;
         }
-        saveMoviesToLocal();
-        renderMovieList();
-        clearForm();
-        showStatus(`✅ "${title}" saved successfully! Main site updated instantly.`);
+        
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-admin-pin': ADMIN_PIN
+                },
+                body: JSON.stringify(movieData)
+            });
+            
+            if (!response.ok) throw new Error(await response.text());
+            const result = await response.json();
+            showStatus(`✅ "${title}" saved successfully!`, 'success');
+            clearForm();
+            loadMovies();
+        } catch (error) {
+            showStatus('Error saving: ' + error.message, 'error');
+        }
     }
 
-    function showStatus(msg) {
+    function clearForm() {
+        document.getElementById('title').value = '';
+        document.getElementById('year').value = '2026';
+        document.getElementById('rating').value = '8.5';
+        document.getElementById('quality').value = '';
+        document.getElementById('genre').value = '';
+        document.getElementById('language').value = '';
+        document.getElementById('type').value = 'movie';
+        document.getElementById('trending').checked = false;
+        document.getElementById('latest').checked = false;
+        document.getElementById('poster').value = '';
+        document.getElementById('videoUrl').value = '';
+        document.getElementById('telegramLink').value = '';
+        document.getElementById('driveLink').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('editId').value = '';
+        tempEpisodes = [];
+        renderEpisodesList();
+        toggleEpisodesSection();
+        showStatus('Form cleared. Ready for new movie.', 'success');
+    }
+
+    function showStatus(msg, type) {
         const statusDiv = document.getElementById('statusMsg');
+        statusDiv.style.display = 'block';
         statusDiv.innerHTML = msg;
-        setTimeout(() => { if (statusDiv) statusDiv.innerHTML = ''; }, 3000);
+        statusDiv.style.background = type === 'error' ? 'rgba(230,57,70,0.2)' : 'rgba(0,184,148,0.2)';
+        setTimeout(() => { statusDiv.style.display = 'none'; }, 3000);
     }
 
-    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
 
-    // Dark mode toggle
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    darkModeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark');
-        const icon = darkModeToggle.querySelector('i');
-        if (document.body.classList.contains('dark')) {
-            icon.classList.remove('fa-moon');
-            icon.classList.add('fa-sun');
-        } else {
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
-        }
-    });
-
-    // Refresh button: reload movies from localStorage and re-render list
-    document.getElementById('refreshBtn').addEventListener('click', async () => {
-        await loadMovies();
-        renderMovieList();
-        showStatus('Data refreshed from storage.');
-    });
-
-    document.getElementById('saveBtn').addEventListener('click', saveCurrentMovie);
+    document.getElementById('saveBtn').addEventListener('click', saveMovie);
     document.getElementById('clearBtn').addEventListener('click', clearForm);
     document.getElementById('type').addEventListener('change', toggleEpisodesSection);
-    document.getElementById('addEpisodeBtn').addEventListener('click', addOrUpdateEpisode);
-
-    initIndexedDB().then(() => loadMovies());
+    document.getElementById('addEpisodeBtn').addEventListener('click', addEpisode);
+    
+    window.editMovie = editMovie;
+    window.deleteMovie = deleteMovie;
+    window.removeEpisode = removeEpisode;
 </script>
 </body>
 </html>
