@@ -3,64 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CineMax Admin Panel</title>
+    <title>CineMax Admin Panel - Gofile Auto Upload</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+            background: linear-gradient(135deg, #0a0a0f 0%, #12121a 100%);
             font-family: 'Inter', sans-serif;
             color: #e0e0e0;
+            min-height: 100vh;
         }
-        .admin-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-        .admin-header { text-align: center; margin-bottom: 2rem; }
-        .admin-header h1 { font-size: 2.5rem; background: linear-gradient(135deg, #e63946, #ff6b6b); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .card { background: rgba(30,30,42,0.95); border-radius: 24px; padding: 2rem; margin-bottom: 2rem; border: 1px solid rgba(230,57,70,0.2); }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-        .input-group { display: flex; flex-direction: column; gap: 8px; }
-        .input-group label { font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: #9ca3af; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a2e; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #e63946; border-radius: 10px; }
+        
+        .admin-container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+        
+        .admin-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(30,30,42,0.5);
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(230,57,70,0.2);
+        }
+        .admin-header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #e63946, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .admin-header p { color: #9ca3af; margin-top: 0.5rem; }
+        
+        .card {
+            background: rgba(30,30,42,0.95);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(230,57,70,0.2);
+            transition: all 0.3s;
+        }
+        .card:hover { border-color: rgba(230,57,70,0.5); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .card h2 { margin-bottom: 1.5rem; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
+        .card h2 i { color: #e63946; }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-group label {
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9ca3af;
+        }
         .input-group input, .input-group select, .input-group textarea {
-            padding: 12px 16px; border-radius: 16px; border: 1.5px solid #2c2c38;
-            background: #1e1e2a; color: #e0e0e0; font-family: inherit; outline: none;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 1.5px solid #2c2c38;
+            background: #1e1e2a;
+            color: #e0e0e0;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s;
         }
-        .input-group input:focus { border-color: #e63946; box-shadow: 0 0 0 3px rgba(230,57,70,0.2); }
-        .btn { background: linear-gradient(135deg, #e63946, #c1121f); border: none; color: white; padding: 12px 28px; border-radius: 40px; font-weight: 700; cursor: pointer; margin-right: 1rem; }
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            border-color: #e63946;
+            box-shadow: 0 0 0 3px rgba(230,57,70,0.2);
+        }
+        .checkbox-group { flex-direction: row; align-items: center; gap: 12px; }
+        .checkbox-group label { text-transform: none; font-weight: normal; }
+        
+        .file-upload-area {
+            border: 2px dashed #2c2c38;
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #1e1e2a;
+        }
+        .file-upload-area:hover { border-color: #e63946; background: #252530; }
+        .file-upload-area i { font-size: 2rem; color: #e63946; margin-bottom: 0.5rem; }
+        .file-name { font-size: 0.75rem; color: #9ca3af; margin-top: 0.5rem; }
+        
+        .btn {
+            background: linear-gradient(135deg, #e63946, #c1121f);
+            border: none;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1rem;
+            margin-right: 1rem;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
         .btn-secondary { background: linear-gradient(135deg, #4a5568, #2d3748); }
-        .movies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
-        .movie-card { background: #1e1e2a; border-radius: 20px; overflow: hidden; border: 1px solid #2c2c38; }
-        .movie-card img { width: 100%; height: 150px; object-fit: cover; }
-        .movie-info { padding: 1rem; }
-        .movie-title { font-weight: 700; margin-bottom: 5px; }
+        .btn-success { background: linear-gradient(135deg, #00b894, #009432); }
+        .btn-warning { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(230,57,70,0.4); }
+        
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .movie-card {
+            background: #1e1e2a;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #2c2c38;
+            transition: all 0.3s;
+        }
+        .movie-card:hover { transform: translateY(-5px); border-color: #e63946; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .movie-card img { width: 100%; height: 180px; object-fit: cover; }
+        .movie-info { padding: 1.2rem; }
+        .movie-title { font-weight: 700; font-size: 1rem; margin-bottom: 5px; }
+        .movie-meta { font-size: 0.7rem; color: #9ca3af; margin-bottom: 10px; }
+        .gofile-link { font-size: 0.65rem; color: #2ecc71; word-break: break-all; margin: 5px 0; }
         .movie-actions { display: flex; gap: 10px; margin-top: 10px; }
-        .edit-btn, .delete-btn { flex: 1; padding: 8px; border-radius: 12px; border: none; cursor: pointer; font-weight: 600; }
+        .edit-btn, .delete-btn { flex: 1; padding: 8px; border-radius: 12px; border: none; cursor: pointer; font-weight: 600; transition: all 0.3s; }
         .edit-btn { background: #2ecc71; color: white; }
         .delete-btn { background: #e63946; color: white; }
-        .status-msg { background: rgba(230,57,70,0.15); padding: 1rem; border-radius: 16px; text-align: center; margin-top: 1rem; }
+        .edit-btn:hover, .delete-btn:hover { opacity: 0.8; transform: scale(0.98); }
+        
+        .episodes-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px dashed #2c2c38;
+        }
+        .episode-card {
+            background: #252530;
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .remove-ep-btn { background: #e63946; border: none; color: white; padding: 4px 12px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
+        
+        .status-msg {
+            background: rgba(230,57,70,0.15);
+            padding: 1rem;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+        
+        .upload-progress {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1e1e2a;
+            border-radius: 16px;
+            padding: 1rem;
+            min-width: 250px;
+            border: 1px solid #e63946;
+            z-index: 1000;
+            display: none;
+        }
+        .upload-progress.show { display: block; }
+        .progress-bar {
+            height: 4px;
+            background: #2c2c38;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #e63946;
+            transition: width 0.3s;
+        }
+        
         .pin-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 10000;
+            background: rgba(0,0,0,0.95); z-index: 10000;
             display: flex; align-items: center; justify-content: center;
         }
         .pin-box {
-            background: #1e1e2a; padding: 2rem; border-radius: 30px;
-            text-align: center; border: 1px solid #e63946;
+            background: #1e1e2a; padding: 2.5rem; border-radius: 30px;
+            text-align: center; border: 1px solid #e63946; max-width: 400px; width: 90%;
         }
-        .pin-box input { padding: 15px; font-size: 1.5rem; text-align: center; border-radius: 20px; border: none; background: #2c2c38; color: white; margin: 1rem 0; }
-        .episode-card { background: #2a2a2e; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem; }
-        @media (max-width: 768px) { .admin-container { padding: 1rem; } .form-grid { grid-template-columns: 1fr; } }
+        .pin-box input {
+            width: 100%; padding: 15px; font-size: 1.5rem; text-align: center;
+            border-radius: 20px; border: none; background: #2c2c38;
+            color: white; margin-bottom: 1rem; letter-spacing: 5px;
+        }
+        .loading { text-align: center; padding: 3rem; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #2c2c38; border-top-color: #e63946; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 768px) {
+            .admin-container { padding: 1rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .movies-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+        }
+        
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+        .badge-movie { background: #2ecc71; color: white; }
+        .badge-tv { background: #e63946; color: white; }
     </style>
 </head>
 <body>
+
 <div id="pinOverlay" class="pin-overlay">
     <div class="pin-box">
         <i class="fas fa-lock" style="font-size: 3rem; color: #e63946;"></i>
         <h2>Admin Access Required</h2>
-        <p>Enter PIN to continue</p>
-        <input type="password" id="pinInput" maxlength="6" placeholder="Enter PIN">
-        <div>
-            <button id="pinSubmitBtn" class="btn">Verify</button>
-        </div>
+        <p>Enter security PIN to continue</p>
+        <input type="password" id="pinInput" maxlength="6" placeholder="••••••" autofocus>
+        <button id="pinSubmitBtn" class="btn" style="width: 100%;">Verify Access</button>
         <p id="pinError" style="color: #e63946; margin-top: 1rem; display: none;">Invalid PIN!</p>
     </div>
 </div>
@@ -68,64 +238,147 @@
 <div id="adminContent" style="display: none;">
     <div class="admin-container">
         <div class="admin-header">
-            <h1><i class="fas fa-user-shield"></i> CineMax Admin Panel</h1>
-            <p>Manage Movies, TV Series, Episodes | Powered by MongoDB + Gofile</p>
+            <h1><i class="fas fa-cloud-upload-alt"></i> CineMax Admin Panel</h1>
+            <p>Auto Upload to Gofile | Direct Links Generator | MongoDB Storage</p>
         </div>
 
         <div class="card">
-            <h2 style="margin-bottom: 1.5rem;"><i class="fas fa-plus-circle"></i> Add / Edit Movie</h2>
+            <h2><i class="fas fa-plus-circle"></i> Add / Edit Content</h2>
             <div class="form-grid">
-                <div class="input-group"><label>Title *</label><input type="text" id="title" placeholder="Movie title"></div>
-                <div class="input-group"><label>Year</label><input type="number" id="year" value="2026"></div>
-                <div class="input-group"><label>Rating</label><input type="number" step="0.1" id="rating" value="8.5"></div>
-                <div class="input-group"><label>Quality</label><input type="text" id="quality" placeholder="4K, 1080p"></div>
-                <div class="input-group"><label>Genre</label><input type="text" id="genre" placeholder="Action, Drama"></div>
-                <div class="input-group"><label>Language</label><input type="text" id="language" placeholder="English"></div>
-                <div class="input-group"><label>Type</label><select id="type"><option value="movie">🎬 Movie</option><option value="tv">📺 TV Series</option></select></div>
-                <div class="input-group"><label><input type="checkbox" id="trending"> 🔥 Trending</label></div>
-                <div class="input-group"><label><input type="checkbox" id="latest"> 🆕 Latest</label></div>
-                <div class="input-group"><label>Poster URL</label><input type="text" id="poster" placeholder="https://..."></div>
-                <div class="input-group"><label>Direct Video URL</label><input type="text" id="videoUrl" placeholder="https://..."></div>
-                <div class="input-group"><label>Telegram Link</label><input type="text" id="telegramLink" placeholder="https://t.me/..."></div>
-                <div class="input-group"><label>Drive Link</label><input type="text" id="driveLink" placeholder="https://drive.google.com/..."></div>
-                <div class="input-group"><label>Description</label><textarea id="description" rows="3"></textarea></div>
-            </div>
-            
-            <div id="episodesSection" style="display: none; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #2c2c38;">
-                <h3><i class="fas fa-tv"></i> Episodes</h3>
-                <div id="episodesList"></div>
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
-                    <input type="number" id="epSeason" placeholder="Season" style="padding: 10px; border-radius: 12px; background: #2a2a2e; border: none; color: white;">
-                    <input type="number" id="epNumber" placeholder="Episode" style="padding: 10px; border-radius: 12px; background: #2a2a2e; border: none; color: white;">
-                    <input type="text" id="epTitle" placeholder="Episode Title" style="padding: 10px; border-radius: 12px; background: #2a2a2e; border: none; color: white; flex: 1;">
-                    <input type="text" id="epVideoUrl" placeholder="Video URL" style="padding: 10px; border-radius: 12px; background: #2a2a2e; border: none; color: white; flex: 1;">
-                    <button id="addEpisodeBtn" class="btn" style="margin: 0;">+ Add</button>
+                <div class="input-group">
+                    <label><i class="fas fa-film"></i> Title *</label>
+                    <input type="text" id="title" placeholder="Movie or Series title">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-calendar"></i> Year</label>
+                    <input type="number" id="year" value="2026">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-star"></i> Rating</label>
+                    <input type="number" step="0.1" id="rating" value="8.5">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-hdmi"></i> Quality</label>
+                    <input type="text" id="quality" placeholder="4K, 1080p">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-tags"></i> Genre</label>
+                    <input type="text" id="genre" placeholder="Action, Drama">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-language"></i> Language</label>
+                    <input type="text" id="language" placeholder="English">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-layer-group"></i> Type</label>
+                    <select id="type">
+                        <option value="movie">🎬 Movie</option>
+                        <option value="tv">📺 TV Series</option>
+                    </select>
+                </div>
+                <div class="input-group checkbox-group">
+                    <input type="checkbox" id="trending">
+                    <label><i class="fas fa-fire"></i> Trending</label>
+                </div>
+                <div class="input-group checkbox-group">
+                    <input type="checkbox" id="latest">
+                    <label><i class="fas fa-clock"></i> Latest</label>
+                </div>
+                
+                <!-- Thumbnail Upload to Gofile -->
+                <div class="input-group">
+                    <label><i class="fas fa-image"></i> Thumbnail (Upload to Gofile)</label>
+                    <div class="file-upload-area" id="thumbnailUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click or drag to upload thumbnail</p>
+                        <input type="file" id="thumbnailFile" accept="image/*" style="display: none;">
+                        <div id="thumbnailName" class="file-name"></div>
+                    </div>
+                    <input type="hidden" id="posterUrl">
+                    <div id="thumbnailPreview" style="margin-top: 10px; display: none;">
+                        <img id="previewImg" style="max-width: 100%; max-height: 100px; border-radius: 12px;">
+                    </div>
+                </div>
+                
+                <!-- Video Upload to Gofile -->
+                <div class="input-group">
+                    <label><i class="fas fa-video"></i> Video (Upload to Gofile)</label>
+                    <div class="file-upload-area" id="videoUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click or drag to upload MP4 video</p>
+                        <input type="file" id="videoFile" accept="video/mp4" style="display: none;">
+                        <div id="videoName" class="file-name"></div>
+                    </div>
+                    <input type="hidden" id="videoUrl">
+                    <div id="videoUploadStatus" style="font-size: 0.7rem; color: #2ecc71; margin-top: 5px;"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fab fa-telegram"></i> Telegram Link</label>
+                    <input type="text" id="telegramLink" placeholder="https://t.me/...">
+                </div>
+                <div class="input-group">
+                    <label><i class="fab fa-google-drive"></i> Drive Link</label>
+                    <input type="text" id="driveLink" placeholder="https://drive.google.com/...">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-align-left"></i> Description</label>
+                    <textarea id="description" rows="3" placeholder="Movie plot..."></textarea>
                 </div>
             </div>
             
+            <!-- Episodes Section -->
+            <div id="episodesSection" class="episodes-section" style="display: none;">
+                <h3><i class="fas fa-tv"></i> Episodes Manager</h3>
+                <div id="episodesList"><p style="color: #9ca3af;">No episodes added yet.</p></div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.8rem; margin-top: 1rem;">
+                    <input type="number" id="epSeason" placeholder="Season">
+                    <input type="number" id="epNumber" placeholder="Episode">
+                    <input type="text" id="epTitle" placeholder="Episode Title">
+                    <div class="file-upload-area" id="epVideoUploadArea" style="padding: 0.5rem;">
+                        <i class="fas fa-upload"></i> Upload Video
+                        <input type="file" id="epVideoFile" accept="video/mp4" style="display: none;">
+                    </div>
+                </div>
+                <button id="addEpisodeBtn" class="btn"><i class="fas fa-plus"></i> Add Episode</button>
+            </div>
+            
             <div style="margin-top: 1.5rem;">
-                <button class="btn" id="saveBtn"><i class="fas fa-save"></i> Save Movie</button>
-                <button class="btn btn-secondary" id="clearBtn"><i class="fas fa-eraser"></i> Clear</button>
+                <button class="btn" id="saveBtn"><i class="fas fa-save"></i> Save to Database</button>
+                <button class="btn btn-secondary" id="clearBtn"><i class="fas fa-eraser"></i> Clear Form</button>
             </div>
             <input type="hidden" id="editId">
             <div id="statusMsg" class="status-msg" style="display: none;"></div>
         </div>
 
         <div class="card">
-            <h2><i class="fas fa-database"></i> All Movies</h2>
-            <div id="moviesGrid" class="movies-grid"></div>
+            <h2><i class="fas fa-database"></i> All Content</h2>
+            <div id="moviesGrid" class="movies-grid">
+                <div class="loading"><div class="spinner"></div><p>Loading...</p></div>
+            </div>
         </div>
     </div>
+</div>
+
+<div id="uploadProgress" class="upload-progress">
+    <div><i class="fas fa-spinner fa-pulse"></i> Uploading to Gofile...</div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+    <div id="uploadStatusText" style="font-size: 0.7rem; margin-top: 5px;"></div>
 </div>
 
 <script>
     const ADMIN_PIN = '200727';
     const API_URL = window.location.origin + '/api';
+    const GOFILE_TOKEN = 'HclcFt3HtFkW3mC2fGS9UjgqUb8Z0dC1';
+    
     let moviesArray = [];
     let tempEpisodes = [];
     let currentEditId = null;
+    let currentThumbnailFile = null;
+    let currentVideoFile = null;
+    let tempEpisodeFiles = [];
 
-    // PIN Verification
+    // ==================== PIN Verification ====================
     function verifyPin() {
         const pin = document.getElementById('pinInput').value;
         if (pin === ADMIN_PIN) {
@@ -135,10 +388,10 @@
             loadMovies();
         } else {
             document.getElementById('pinError').style.display = 'block';
+            setTimeout(() => { document.getElementById('pinError').style.display = 'none'; }, 3000);
         }
     }
 
-    // Check existing auth
     if (localStorage.getItem('admin_auth') === 'true') {
         document.getElementById('pinOverlay').style.display = 'none';
         document.getElementById('adminContent').style.display = 'block';
@@ -148,7 +401,154 @@
     document.getElementById('pinSubmitBtn').addEventListener('click', verifyPin);
     document.getElementById('pinInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyPin(); });
 
-    // API Helper with auth
+    // ==================== Gofile Upload Functions ====================
+    async function uploadToGofile(file, type) {
+        return new Promise((resolve, reject) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://store1.gofile.io/uploadFile');
+            
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percent = (e.loaded / e.total) * 100;
+                    document.querySelector('.progress-fill').style.width = percent + '%';
+                    document.getElementById('uploadStatusText').innerHTML = `Uploading ${type}: ${Math.round(percent)}%`;
+                }
+            };
+            
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.status === 'ok') {
+                            const directLink = `https://cdn.gofile.io/${response.data.fileId}`;
+                            resolve({ success: true, fileId: response.data.fileId, directLink: directLink });
+                        } else {
+                            reject(new Error('Upload failed: ' + response.status));
+                        }
+                    } catch(e) {
+                        reject(e);
+                    }
+                } else {
+                    reject(new Error('Upload failed with status: ' + xhr.status));
+                }
+            };
+            
+            xhr.onerror = () => reject(new Error('Network error'));
+            xhr.send(formData);
+        });
+    }
+
+    async function uploadThumbnailAndGetUrl(file) {
+        if (!file) return null;
+        showProgress();
+        try {
+            const result = await uploadToGofile(file, 'Thumbnail');
+            hideProgress();
+            return result.directLink;
+        } catch (error) {
+            hideProgress();
+            showStatus('Thumbnail upload failed: ' + error.message, 'error');
+            return null;
+        }
+    }
+
+    async function uploadVideoAndGetUrl(file) {
+        if (!file) return null;
+        showProgress();
+        try {
+            const result = await uploadToGofile(file, 'Video');
+            hideProgress();
+            return { videoUrl: result.directLink, fileId: result.fileId };
+        } catch (error) {
+            hideProgress();
+            showStatus('Video upload failed: ' + error.message, 'error');
+            return null;
+        }
+    }
+
+    function showProgress() {
+        document.getElementById('uploadProgress').classList.add('show');
+        document.querySelector('.progress-fill').style.width = '0%';
+    }
+
+    function hideProgress() {
+        document.getElementById('uploadProgress').classList.remove('show');
+        document.getElementById('uploadStatusText').innerHTML = '';
+    }
+
+    // ==================== File Upload UI ====================
+    // Thumbnail upload
+    const thumbnailArea = document.getElementById('thumbnailUploadArea');
+    const thumbnailInput = document.getElementById('thumbnailFile');
+    thumbnailArea.addEventListener('click', () => thumbnailInput.click());
+    thumbnailInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('thumbnailName').innerHTML = `<i class="fas fa-check-circle"></i> ${file.name}`;
+            const preview = document.getElementById('thumbnailPreview');
+            const previewImg = document.getElementById('previewImg');
+            previewImg.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+            currentThumbnailFile = file;
+            
+            // Auto upload to Gofile
+            const url = await uploadThumbnailAndGetUrl(file);
+            if (url) {
+                document.getElementById('posterUrl').value = url;
+                showStatus('✅ Thumbnail uploaded to Gofile!', 'success');
+            }
+        }
+    });
+
+    // Video upload
+    const videoArea = document.getElementById('videoUploadArea');
+    const videoInput = document.getElementById('videoFile');
+    videoArea.addEventListener('click', () => videoInput.click());
+    videoInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file && file.type === 'video/mp4') {
+            document.getElementById('videoName').innerHTML = `<i class="fas fa-check-circle"></i> ${file.name}`;
+            currentVideoFile = file;
+            
+            // Auto upload to Gofile
+            const result = await uploadVideoAndGetUrl(file);
+            if (result) {
+                document.getElementById('videoUrl').value = result.videoUrl;
+                document.getElementById('videoUploadStatus').innerHTML = `<i class="fas fa-check-circle"></i> Uploaded: ${result.videoUrl.substring(0, 50)}...`;
+                showStatus('✅ Video uploaded to Gofile!', 'success');
+            }
+        } else {
+            alert('Please select an MP4 video file');
+        }
+    });
+
+    // Episode video upload
+    const epVideoArea = document.getElementById('epVideoUploadArea');
+    const epVideoInput = document.getElementById('epVideoFile');
+    let currentEpisodeVideoFile = null;
+    epVideoArea.addEventListener('click', () => epVideoInput.click());
+    epVideoInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file && file.type === 'video/mp4') {
+            epVideoArea.innerHTML = `<i class="fas fa-spinner fa-pulse"></i> Uploading...`;
+            const result = await uploadVideoAndGetUrl(file);
+            if (result) {
+                currentEpisodeVideoFile = { file, url: result.videoUrl, fileId: result.fileId };
+                epVideoArea.innerHTML = `<i class="fas fa-check-circle"></i> Video Ready: ${file.name.substring(0, 20)}...`;
+                showStatus('✅ Episode video uploaded to Gofile!', 'success');
+            } else {
+                epVideoArea.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Upload failed - try again`;
+                setTimeout(() => {
+                    epVideoArea.innerHTML = `<i class="fas fa-upload"></i> Upload Video`;
+                }, 3000);
+            }
+        }
+    });
+
+    // ==================== API Calls ====================
     async function apiCall(url, options = {}) {
         const response = await fetch(url, {
             ...options,
@@ -169,22 +569,23 @@
             renderMoviesGrid();
         } catch (error) {
             console.error(error);
-            showStatus('Error loading movies: ' + error.message, 'error');
+            document.getElementById('moviesGrid').innerHTML = `<div class="status-msg">Error loading movies: ${error.message}</div>`;
         }
     }
 
     function renderMoviesGrid() {
         const container = document.getElementById('moviesGrid');
         if (!moviesArray.length) {
-            container.innerHTML = '<p style="text-align: center;">No movies yet. Add your first movie!</p>';
+            container.innerHTML = '<div class="status-msg">No movies yet. Add your first movie above!</div>';
             return;
         }
         container.innerHTML = moviesArray.map(movie => `
             <div class="movie-card">
-                <img src="${movie.posterImg || 'https://via.placeholder.com/300x150/1a1a2e/e63946?text=No+Poster'}" onerror="this.src='https://via.placeholder.com/300x150/1a1a2e/e63946?text=No+Poster'">
+                <img src="${movie.posterImg || 'https://via.placeholder.com/300x180/1a1a2e/e63946?text=No+Poster'}" onerror="this.src='https://via.placeholder.com/300x180/1a1a2e/e63946?text=No+Poster'">
                 <div class="movie-info">
                     <div class="movie-title">${escapeHtml(movie.title)}</div>
-                    <div style="font-size: 0.8rem; color: #9ca3af;">${movie.genre || ''} | ${movie.year || ''} | ${movie.type}</div>
+                    <div class="movie-meta">${movie.genre || 'N/A'} | ${movie.year || 'N/A'}</div>
+                    ${movie.videoUrl ? `<div class="gofile-link"><i class="fab fa-gofile"></i> ${movie.videoUrl.substring(0, 40)}...</div>` : ''}
                     <div class="movie-actions">
                         <button class="edit-btn" onclick="editMovie('${movie._id}')"><i class="fas fa-edit"></i> Edit</button>
                         <button class="delete-btn" onclick="deleteMovie('${movie._id}')"><i class="fas fa-trash"></i> Delete</button>
@@ -197,6 +598,7 @@
     async function editMovie(id) {
         const movie = moviesArray.find(m => m._id === id);
         if (!movie) return;
+        
         currentEditId = id;
         document.getElementById('title').value = movie.title || '';
         document.getElementById('year').value = movie.year || '';
@@ -207,35 +609,39 @@
         document.getElementById('type').value = movie.type || 'movie';
         document.getElementById('trending').checked = movie.isTrending || false;
         document.getElementById('latest').checked = movie.isLatest || false;
-        document.getElementById('poster').value = movie.posterImg || '';
-        document.getElementById('videoUrl').value = movie.videoUrl || movie.directLink || '';
+        document.getElementById('posterUrl').value = movie.posterImg || '';
+        document.getElementById('videoUrl').value = movie.videoUrl || '';
         document.getElementById('telegramLink').value = movie.telegramLink || '';
         document.getElementById('driveLink').value = movie.driveLink || '';
         document.getElementById('description').value = movie.description || '';
         document.getElementById('editId').value = id;
         
-        tempEpisodes = movie.episodes ? [...movie.episodes] : [];
+        if (movie.posterImg) {
+            document.getElementById('thumbnailPreview').style.display = 'block';
+            document.getElementById('previewImg').src = movie.posterImg;
+        }
+        
+        tempEpisodes = movie.episodes ? JSON.parse(JSON.stringify(movie.episodes)) : [];
         renderEpisodesList();
         toggleEpisodesSection();
         showStatus(`Editing: ${movie.title}`, 'success');
     }
 
     async function deleteMovie(id) {
-        if (!confirm('Are you sure you want to delete this movie?')) return;
+        if (!confirm('⚠️ Delete this movie? This cannot be undone!')) return;
         try {
             await apiCall(`${API_URL}/movies/${id}`, { method: 'DELETE' });
-            showStatus('Movie deleted successfully!', 'success');
+            showStatus('✅ Movie deleted!', 'success');
             loadMovies();
             clearForm();
         } catch (error) {
-            showStatus('Error deleting movie: ' + error.message, 'error');
+            showStatus('❌ Delete failed: ' + error.message, 'error');
         }
     }
 
     function toggleEpisodesSection() {
         const type = document.getElementById('type').value;
-        const section = document.getElementById('episodesSection');
-        section.style.display = type === 'tv' ? 'block' : 'none';
+        document.getElementById('episodesSection').style.display = type === 'tv' ? 'block' : 'none';
         if (type !== 'tv') tempEpisodes = [];
         renderEpisodesList();
     }
@@ -243,21 +649,21 @@
     function renderEpisodesList() {
         const container = document.getElementById('episodesList');
         if (!tempEpisodes.length) {
-            container.innerHTML = '<p>No episodes added yet.</p>';
+            container.innerHTML = '<p style="color: #9ca3af;">No episodes yet.</p>';
             return;
         }
         const seasons = {};
-        tempEpisodes.forEach(ep => {
+        tempEpisodes.forEach((ep, idx) => {
             if (!seasons[ep.season]) seasons[ep.season] = [];
-            seasons[ep.season].push(ep);
+            seasons[ep.season].push({ ...ep, index: idx });
         });
         let html = '';
-        for (let s in seasons) {
-            html += `<div style="margin-bottom: 1rem;"><strong>Season ${s}</strong>`;
-            seasons[s].forEach((ep, idx) => {
+        for (let season in seasons) {
+            html += `<div style="margin-bottom: 1rem;"><h4 style="color: #e63946;">Season ${season}</h4>`;
+            seasons[season].forEach(ep => {
                 html += `<div class="episode-card">
-                            Episode ${ep.episode}: ${ep.title || 'Untitled'}
-                            <button onclick="removeEpisode(${idx})" style="float: right; background: #e63946; border: none; color: white; padding: 4px 12px; border-radius: 20px; cursor: pointer;">Remove</button>
+                            <div>Ep ${ep.episode}: ${ep.title || 'Untitled'} ${ep.videoUrl ? '✅' : '❌'}</div>
+                            <button class="remove-ep-btn" onclick="removeEpisode(${ep.index})">Remove</button>
                          </div>`;
             });
             html += `</div>`;
@@ -274,40 +680,61 @@
         const season = parseInt(document.getElementById('epSeason').value);
         const episode = parseInt(document.getElementById('epNumber').value);
         const title = document.getElementById('epTitle').value;
-        const videoUrl = document.getElementById('epVideoUrl').value;
         
         if (isNaN(season) || isNaN(episode)) {
-            alert('Season and Episode numbers are required');
+            alert('Season and Episode numbers required');
+            return;
+        }
+        
+        if (!currentEpisodeVideoFile) {
+            alert('Please upload an episode video first');
             return;
         }
         
         tempEpisodes.push({
             id: Date.now().toString(),
-            season,
-            episode,
-            title,
-            videoUrl,
-            directLink: videoUrl,
+            season: season,
+            episode: episode,
+            title: title || `Episode ${episode}`,
+            videoUrl: currentEpisodeVideoFile.url,
+            directLink: currentEpisodeVideoFile.url,
+            gofileFileId: currentEpisodeVideoFile.fileId,
             views: 0
         });
         
         document.getElementById('epSeason').value = '';
         document.getElementById('epNumber').value = '';
         document.getElementById('epTitle').value = '';
-        document.getElementById('epVideoUrl').value = '';
+        epVideoInput.value = '';
+        currentEpisodeVideoFile = null;
+        document.getElementById('epVideoUploadArea').innerHTML = `<i class="fas fa-upload"></i> Upload Video`;
+        
         renderEpisodesList();
-        showStatus('Episode added. Click Save to commit.', 'success');
+        showStatus('Episode added!', 'success');
     }
 
     async function saveMovie() {
         const title = document.getElementById('title').value.trim();
         if (!title) {
-            alert('Title is required');
+            alert('Title is required!');
+            return;
+        }
+        
+        const posterUrl = document.getElementById('posterUrl').value;
+        const videoUrl = document.getElementById('videoUrl').value;
+        
+        if (!posterUrl) {
+            alert('Please upload a thumbnail image first!');
+            return;
+        }
+        
+        if (!videoUrl && document.getElementById('type').value === 'movie') {
+            alert('Please upload a video file first!');
             return;
         }
         
         const movieData = {
-            title,
+            title: title,
             year: parseInt(document.getElementById('year').value) || 2025,
             rating: parseFloat(document.getElementById('rating').value) || 7.0,
             quality: document.getElementById('quality').value || 'HD',
@@ -316,9 +743,9 @@
             type: document.getElementById('type').value,
             isTrending: document.getElementById('trending').checked,
             isLatest: document.getElementById('latest').checked,
-            posterImg: document.getElementById('poster').value || '',
-            videoUrl: document.getElementById('videoUrl').value || '',
-            directLink: document.getElementById('videoUrl').value || '',
+            posterImg: posterUrl,
+            videoUrl: videoUrl,
+            directLink: videoUrl,
             telegramLink: document.getElementById('telegramLink').value || '',
             driveLink: document.getElementById('driveLink').value || '',
             description: document.getElementById('description').value || '',
@@ -327,29 +754,24 @@
         
         const editId = document.getElementById('editId').value;
         let url = `${API_URL}/movies`;
-        let method = 'POST';
         
-        if (editId && editId !== 'undefined') {
-            movieData.id = editId;
-        }
+        if (editId && editId !== 'undefined') movieData.id = editId;
+        
+        showStatus('💾 Saving to database...', 'info');
         
         try {
             const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-admin-pin': ADMIN_PIN
-                },
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-admin-pin': ADMIN_PIN },
                 body: JSON.stringify(movieData)
             });
-            
             if (!response.ok) throw new Error(await response.text());
-            const result = await response.json();
+            
             showStatus(`✅ "${title}" saved successfully!`, 'success');
             clearForm();
             loadMovies();
         } catch (error) {
-            showStatus('Error saving: ' + error.message, 'error');
+            showStatus('❌ Error: ' + error.message, 'error');
         }
     }
 
@@ -363,41 +785,49 @@
         document.getElementById('type').value = 'movie';
         document.getElementById('trending').checked = false;
         document.getElementById('latest').checked = false;
-        document.getElementById('poster').value = '';
+        document.getElementById('posterUrl').value = '';
         document.getElementById('videoUrl').value = '';
         document.getElementById('telegramLink').value = '';
         document.getElementById('driveLink').value = '';
         document.getElementById('description').value = '';
         document.getElementById('editId').value = '';
+        document.getElementById('thumbnailName').innerHTML = '';
+        document.getElementById('videoName').innerHTML = '';
+        document.getElementById('videoUploadStatus').innerHTML = '';
+        document.getElementById('thumbnailPreview').style.display = 'none';
+        document.getElementById('episodesSection').style.display = 'none';
+        
+        thumbnailInput.value = '';
+        videoInput.value = '';
+        currentThumbnailFile = null;
+        currentVideoFile = null;
         tempEpisodes = [];
+        currentEditId = null;
         renderEpisodesList();
-        toggleEpisodesSection();
-        showStatus('Form cleared. Ready for new movie.', 'success');
+        
+        showStatus('Form cleared!', 'success');
     }
 
     function showStatus(msg, type) {
         const statusDiv = document.getElementById('statusMsg');
         statusDiv.style.display = 'block';
         statusDiv.innerHTML = msg;
-        statusDiv.style.background = type === 'error' ? 'rgba(230,57,70,0.2)' : 'rgba(0,184,148,0.2)';
-        setTimeout(() => { statusDiv.style.display = 'none'; }, 3000);
+        if (type === 'error') statusDiv.style.background = 'rgba(230,57,70,0.2)';
+        else if (type === 'success') statusDiv.style.background = 'rgba(0,184,148,0.2)';
+        else statusDiv.style.background = 'rgba(52,152,219,0.2)';
+        setTimeout(() => { statusDiv.style.display = 'none'; }, 4000);
     }
 
     function escapeHtml(str) {
         if (!str) return '';
-        return String(str).replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
+        return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
 
     document.getElementById('saveBtn').addEventListener('click', saveMovie);
     document.getElementById('clearBtn').addEventListener('click', clearForm);
     document.getElementById('type').addEventListener('change', toggleEpisodesSection);
     document.getElementById('addEpisodeBtn').addEventListener('click', addEpisode);
-    
+
     window.editMovie = editMovie;
     window.deleteMovie = deleteMovie;
     window.removeEpisode = removeEpisode;
