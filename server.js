@@ -19,15 +19,14 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Serve static files from 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ==================== MongoDB Connection ====================
+// ==================== MongoDB Connection (Fixed: removed deprecated options) ====================
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/cinemax';
-mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => console.log('✅ MongoDB Connected successfully'))
-  .catch(err => console.error('❌ MongoDB Connection error:', err));
 
-// ==================== Movie Schema ====================
+mongoose.connect(MONGODB_URI)
+    .then(() => console.log('✅ MongoDB Connected successfully'))
+    .catch(err => console.error('❌ MongoDB Connection error:', err));
+
+// ==================== Models (Fixed: check if model exists before creating) ====================
 const EpisodeSchema = new mongoose.Schema({
     id: { type: String, default: () => Date.now().toString() },
     season: { type: Number, required: true },
@@ -86,7 +85,8 @@ const MovieSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-const Movie = mongoose.model('Movie', MovieSchema);
+// Fix: Check if model already exists to prevent OverwriteModelError
+const Movie = mongoose.models.Movie || mongoose.model('Movie', MovieSchema);
 
 // ==================== Gofile Configuration ====================
 const GOFILE_TOKEN = 'HclcFt3HtFkW3mC2fGS9UjgqUb8Z0dC1';
@@ -128,22 +128,7 @@ const createGofileFolder = async (folderName) => {
     }
 };
 
-// Get direct link for content
-const getDirectLink = async (contentId) => {
-    try {
-        const result = await gofileRequest('POST', `/contents/${contentId}/directlinks`, {
-            expireTime: null,
-            domainsAllowed: ['*']
-        });
-        return result;
-    } catch (error) {
-        console.error('Get direct link error:', error);
-        return null;
-    }
-};
-
 // ==================== Multer Setup for Thumbnails ====================
-// Create uploads folder if not exists
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
@@ -161,7 +146,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
     storage, 
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB for thumbnails
+    limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const allowedTypes = /jpeg|jpg|png|gif|webp/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -225,7 +210,6 @@ app.post('/api/movies', adminAuth, upload.single('thumbnail'), async (req, res) 
         
         let thumbnailUrl = posterImg;
         
-        // Upload thumbnail if provided
         if (req.file) {
             thumbnailUrl = `/uploads/${req.file.filename}`;
         }
@@ -264,13 +248,11 @@ app.post('/api/movies', adminAuth, upload.single('thumbnail'), async (req, res) 
         
         let movie;
         if (id && id !== 'undefined' && id !== 'null') {
-            // Update existing movie
             movie = await Movie.findByIdAndUpdate(id, movieData, { new: true, runValidators: true });
             if (!movie) {
                 return res.status(404).json({ error: 'Movie not found' });
             }
         } else {
-            // Create new movie
             movie = new Movie(movieData);
             await movie.save();
         }
@@ -352,37 +334,15 @@ app.post('/api/movies/:movieId/episodes/:episodeId/view', async (req, res) => {
     }
 });
 
-// Create Gofile folder for movie (admin only)
-app.post('/api/movies/:id/gofile-folder', adminAuth, async (req, res) => {
-    try {
-        const movie = await Movie.findById(req.params.id);
-        if (!movie) return res.status(404).json({ error: 'Movie not found' });
-        
-        const folder = await createGofileFolder(movie.title);
-        if (folder) {
-            movie.gofileFolderId = folder.folderId;
-            await movie.save();
-            res.json({ folderId: folder.folderId, folder });
-        } else {
-            res.status(500).json({ error: 'Failed to create Gofile folder' });
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
 // ==================== Serve HTML Pages ====================
-// Serve admin.html with PIN protection middleware
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// Serve index.html as default
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Catch-all for SPA routing - serve index.html for unknown routes (except API)
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api') && !req.path.startsWith('/uploads')) {
         res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -408,12 +368,11 @@ app.listen(PORT, () => {
     ║  Server URL: http://localhost:${PORT}             ║
     ║  Admin Panel: http://localhost:${PORT}/admin      ║
     ║  Admin PIN: 200727                               ║
-    ║  MongoDB: ${MONGODB_URI}      ║
+    ║  MongoDB: ${MONGODB_URI}                         ║
     ╚══════════════════════════════════════════════════╝
     `);
 });
 
-// Graceful shutdown
 process.on('SIGINT', async () => {
     await mongoose.connection.close();
     console.log('MongoDB connection closed');
