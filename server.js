@@ -14,7 +14,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ==================== MongoDB Connection ====================
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/cinemax';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://dexter:dexter4321@cluster0.ymfug48.mongodb.net/DEXTER_S?retryWrites=true&w=majority';
 
 const connectDB = async () => {
     try {
