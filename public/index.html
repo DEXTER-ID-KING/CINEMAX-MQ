@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>CineMax | Stream Movies & Shows</title>
+    <title>CineMax | Stream Movies & TV Shows in HD</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -13,503 +13,441 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s, transform 0.2s;
+            transition: all 0.2s ease;
         }
 
         :root {
-            --bg-primary: #fff5f5;
-            --bg-card: #ffffff;
-            --text-primary: #1e1b1a;
-            --text-secondary: #5a4a42;
+            --bg-primary: #0f0f1a;
+            --bg-card: #1a1a2e;
+            --bg-secondary: #16213e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
             --accent: #e63946;
             --accent-dark: #c1121f;
-            --border: #ffcdd2;
-            --shadow: 0 12px 28px rgba(0,0,0,0.08);
-            --header-bg: rgba(255, 245, 245, 0.92);
-            --input-bg: #ffffff;
-            --menu-bg: #ffffff;
-            --page-bg: #fff5f5;
-        }
-
-        body.dark {
-            --bg-primary: #121212;
-            --bg-card: #1e1e2a;
-            --text-primary: #f0f0f0;
-            --text-secondary: #bcb8b0;
-            --accent: #ff4d4d;
-            --accent-dark: #e33535;
+            --accent-glow: rgba(230, 57, 70, 0.3);
             --border: #2c2c38;
-            --shadow: 0 12px 28px rgba(0,0,0,0.4);
-            --header-bg: rgba(18, 18, 24, 0.96);
-            --input-bg: #2a2a2e;
-            --menu-bg: #1e1e2a;
-            --page-bg: #121212;
+            --shadow: 0 20px 35px -12px rgba(0,0,0,0.5);
+            --input-bg: #1e1e2a;
         }
 
         body {
             background: var(--bg-primary);
             color: var(--text-primary);
-            min-height: 100vh;
             font-family: 'Poppins', 'Inter', sans-serif;
+            min-height: 100vh;
         }
 
-        /* all existing styles remain exactly as in your original code */
-        h1, h2, h3, .site-title, .menu-item, .detail-title, .back-button, .download-btn, .section-title {
-            font-family: 'Poppins', sans-serif;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
 
+        /* Navbar */
         .navbar {
             position: sticky;
             top: 0;
-            z-index: 100;
-            backdrop-filter: blur(14px);
-            background: var(--header-bg);
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            background: rgba(15, 15, 26, 0.95);
             border-bottom: 1px solid var(--border);
             padding: 0.8rem 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
         }
 
-        .navbar-top {
+        .navbar-content {
+            max-width: 1600px;
+            margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .logo-area {
             display: flex;
             align-items: center;
             gap: 12px;
+            cursor: pointer;
         }
+
         .logo-img {
-            width: 42px;
-            height: 42px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid var(--accent);
-            box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.3);
-            transition: transform 0.3s ease;
+            border: 2px solid var(--accent);
         }
-        .logo-img:hover {
-            transform: scale(1.05);
-        }
+
         .site-title {
             font-size: 1.8rem;
             font-weight: 800;
-            letter-spacing: -0.5px;
         }
-        .site-title .cine-white {
-            color: var(--text-primary);
-        }
-        .site-title .max-red {
-            color: var(--accent);
+        .site-title .cine { color: var(--text-primary); }
+        .site-title .max { color: var(--accent); }
+
+        .search-wrapper {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
         }
 
-        .top-buttons {
+        .search-bar {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .search-bar:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .nav-buttons {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 15px;
         }
-        .theme-toggle {
+
+        .theme-toggle, .menu-toggle {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 40px;
-            padding: 8px 12px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-primary);
-            font-size: 1.2rem;
-            transition: 0.2s;
-        }
-        .theme-toggle:hover {
-            background: var(--accent);
-            color: white;
-            transform: scale(1.02);
-        }
-        .menu-icon {
-            font-size: 1.8rem;
-            cursor: pointer;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            transition: 0.2s;
-        }
-        .menu-icon:hover {
-            color: var(--accent);
-            transform: scale(1.05);
         }
 
-        .navbar-bottom {
-            width: 100%;
-            transition: 0.3s;
-        }
-        .search-wrapper {
-            width: 100%;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-        .search-bar {
-            width: 100%;
-            padding: 12px 22px;
-            border-radius: 60px;
-            border: 1px solid var(--border);
-            background: var(--input-bg);
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            outline: none;
-            font-family: 'Inter', sans-serif;
-            transition: 0.2s;
-        }
-        .search-bar:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.3);
-        }
-
+        /* Side Menu */
         .side-menu {
             position: fixed;
             top: 0;
-            right: -320px;
-            width: 300px;
+            right: -400px;
+            width: 350px;
             height: 100%;
-            background: var(--menu-bg);
-            backdrop-filter: blur(16px);
+            background: var(--bg-card);
             border-left: 1px solid var(--border);
-            box-shadow: -5px 0 20px rgba(0,0,0,0.2);
-            z-index: 1000;
-            transition: right 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            z-index: 1001;
+            transition: right 0.3s;
             padding: 2rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            font-family: 'Lexend', sans-serif;
+            overflow-y: auto;
         }
+
         .side-menu.open { right: 0; }
-        .menu-header { display: flex; justify-content: flex-end; }
+
+        .menu-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.5rem;
+        }
+
         .close-menu {
             background: none;
             border: none;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             cursor: pointer;
             color: var(--text-primary);
-            transition: 0.2s;
         }
-        .close-menu:hover {
-            color: var(--accent);
-            transform: rotate(90deg);
-        }
+
         .menu-item {
-            font-size: 1.3rem;
-            font-weight: 600;
-            padding: 12px 0;
+            padding: 15px 0;
             cursor: pointer;
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-family: 'Poppins', sans-serif;
-            transition: 0.2s;
+            font-weight: 600;
         }
-        .menu-item:hover {
-            color: var(--accent);
-            transform: translateX(5px);
-        }
+
+        .menu-item:hover { color: var(--accent); }
+
         .submenu {
             display: none;
-            flex-direction: column;
-            padding-left: 1.2rem;
+            padding-left: 1.5rem;
             margin-top: 0.5rem;
-            gap: 0.7rem;
         }
-        .submenu.show { display: flex; }
+
+        .submenu.show { display: block; }
+
         .submenu span {
-            font-size: 1rem;
-            font-weight: 500;
+            display: block;
+            padding: 10px 0;
             cursor: pointer;
-            padding: 6px 0;
             color: var(--text-secondary);
-            transition: 0.2s;
-            font-family: 'Poppins', sans-serif;
         }
-        .submenu span:hover {
-            color: var(--accent);
-            transform: translateX(8px);
-        }
+
+        .submenu span:hover { color: var(--accent); }
+
         .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
             display: none;
         }
+
         .overlay.active { display: block; }
 
-        .google-login-container {
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
+        /* User Section */
+        .user-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
             border-bottom: 1px solid var(--border);
         }
+
         .user-info {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 0;
+            gap: 12px;
         }
+
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             object-fit: cover;
+            border: 2px solid var(--accent);
         }
-        .user-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
+
+        .user-details { flex: 1; }
+        .user-name { font-weight: 700; font-size: 1rem; }
+        .user-email { font-size: 0.75rem; color: var(--text-secondary); }
+
         .logout-btn {
             background: var(--accent);
             color: white;
             border: none;
-            padding: 5px 12px;
-            border-radius: 30px;
+            padding: 6px 15px;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 0.7rem;
         }
 
-        .page {
-            display: none;
-            animation: fadeInUp 0.4s ease;
-        }
-        .page.active-page {
-            display: block;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
         }
 
-        .movie-slider-container {
-            width: 100%;
-            overflow: hidden;
-            background: rgba(230, 57, 70, 0.1);
-            border-radius: 50px;
-            padding: 10px 0;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--accent);
-        }
-        .sliding-text {
-            display: inline-block;
-            white-space: nowrap;
-            font-size: 1.2rem;
+        .section-title {
+            font-size: 1.8rem;
             font-weight: 700;
-            color: var(--accent);
-            font-family: 'Poppins', sans-serif;
-            letter-spacing: 0.5px;
-            animation: slideLeftToRight 10s linear infinite;
+            margin: 2rem 0 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        @keyframes slideLeftToRight {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+        .section-title i { color: var(--accent); }
+
+        /* Movie Grid */
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.5rem;
         }
-        @media (max-width: 640px) {
-            .sliding-text { font-size: 0.9rem; animation-duration: 8s; }
+
+        .movie-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--border);
         }
+
+        .movie-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: var(--shadow);
+        }
+
+        .poster {
+            position: relative;
+            aspect-ratio: 2/3;
+            overflow: hidden;
+        }
+
+        .poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .trending-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .card-info { padding: 1rem; }
+        .movie-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .movie-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        .rating { color: #f39c12; }
+
+        /* Movie Detail Page */
+        .detail-header { margin-bottom: 1.5rem; }
 
         .back-button {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 50px;
-            padding: 8px 20px;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: 40px;
+            padding: 10px 25px;
             cursor: pointer;
             color: var(--text-primary);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.2s;
+            font-weight: 600;
         }
-        .back-button:hover {
-            background: var(--accent);
-            color: white;
-            transform: translateX(-5px);
-        }
+        .back-button:hover { background: var(--accent); }
 
         .video-container {
             position: relative;
             width: 100%;
-            border-radius: 28px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.2);
-            background: #000;
-        }
-        .video-container video {
-            width: 100%;
-            display: block;
-        }
-        .video-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(3px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2rem;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s ease, visibility 0.2s;
-            z-index: 10;
-        }
-        .video-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .skip-center-btn {
-            background: rgba(0,0,0,0.7);
-            color: white;
-            border: none;
-            border-radius: 60px;
-            padding: 12px 24px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: 0.2s;
-        }
-        .skip-center-btn:hover {
-            background: var(--accent);
-            transform: scale(1.05);
-        }
-        .quality-top-btn {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            border: none;
-            border-radius: 40px;
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 15;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: 0.2s;
-        }
-        .quality-top-btn:hover {
-            background: var(--accent);
-        }
-        .quality-dropdown {
-            position: absolute;
-            top: 60px;
-            right: 16px;
-            background: var(--bg-card);
             border-radius: 20px;
-            padding: 8px 0;
-            min-width: 120px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            border: 1px solid var(--border);
-            display: none;
-            z-index: 20;
-        }
-        .quality-dropdown.show {
-            display: block;
-        }
-        .quality-dropdown div {
-            padding: 8px 16px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            color: var(--text-primary);
-        }
-        .quality-dropdown div:hover {
-            background: var(--accent);
-            color: white;
-        }
-
-        /* Episodes section (for TV series) */
-        .episodes-section {
-            margin-top: 2rem;
-            background: var(--bg-card);
-            border-radius: 28px;
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-        }
-        .season-group {
+            overflow: hidden;
+            background: #000;
             margin-bottom: 1.5rem;
         }
-        .season-title {
-            font-size: 1.3rem;
+        .video-container video { width: 100%; display: block; }
+
+        .views-counter {
+            text-align: right;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .download-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            justify-content: center;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            border-radius: 50px;
             font-weight: 700;
-            margin-bottom: 0.8rem;
+            text-decoration: none;
+        }
+        .download-btn.telegram { background: #0088cc; color: white; }
+        .download-btn.direct { background: var(--accent); color: white; }
+        .download-btn.drive { background: #4285F4; color: white; }
+
+        .movie-description {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border-left: 4px solid var(--accent);
+            margin: 1.5rem 0;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        /* Episodes */
+        .episodes-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .season-group { margin-bottom: 1.5rem; }
+        .season-title {
+            font-size: 1.2rem;
+            font-weight: 700;
             color: var(--accent);
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
         }
         .episode-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0.8rem;
-            border-bottom: 1px solid var(--border);
+            margin: 0.5rem 0;
+            background: var(--bg-secondary);
+            border-radius: 12px;
             cursor: pointer;
-            transition: 0.1s;
         }
-        .episode-item:hover {
-            background: var(--bg-primary);
-            transform: translateX(5px);
-        }
-        .episode-title {
-            font-weight: 500;
-        }
-        .episode-meta {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-        }
+        .episode-item:hover { background: var(--accent); transform: translateX(5px); }
 
+        /* Comments */
         .comments-section {
-            margin-top: 2rem;
             background: var(--bg-card);
-            border-radius: 28px;
+            border-radius: 20px;
             padding: 1.5rem;
-            border: 1px solid var(--border);
+            margin-top: 1.5rem;
         }
         .comment-input-area {
             display: flex;
             gap: 1rem;
             margin-bottom: 1.5rem;
-            flex-wrap: wrap;
         }
         .comment-input-area textarea {
             flex: 1;
             padding: 12px;
-            border-radius: 30px;
+            border-radius: 20px;
             border: 1px solid var(--border);
             background: var(--input-bg);
             color: var(--text-primary);
-            font-family: inherit;
+            resize: none;
         }
         .comment-input-area button {
             background: var(--accent);
-            color: white;
             border: none;
-            border-radius: 40px;
-            padding: 0 24px;
+            padding: 0 25px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 700;
             cursor: pointer;
-            font-weight: bold;
         }
         .comment {
             border-bottom: 1px solid var(--border);
@@ -517,590 +455,267 @@
         }
         .comment-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 12px;
             margin-bottom: 0.5rem;
         }
-        .comment-user {
-            font-weight: bold;
-            color: var(--accent);
+        .comment-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
         }
-        .comment-text {
-            margin: 0.5rem 0;
-        }
-        .comment-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-        .comment-actions button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-        }
-        .replies {
-            margin-left: 2rem;
-            margin-top: 1rem;
-            border-left: 2px solid var(--border);
-            padding-left: 1rem;
-        }
-        .reply-box {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-        .like-count {
-            margin-left: 4px;
-        }
-        .views-counter {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
-            text-align: right;
-        }
+        .comment-user { font-weight: 700; color: var(--accent); }
+        .comment-text { margin-left: 47px; margin-bottom: 0.5rem; }
+        .replies { margin-left: 47px; padding-left: 1rem; border-left: 2px solid var(--border); }
 
-        .download-options {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1rem;
-            margin: 1.8rem 0;
-        }
-        .download-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 24px;
-            border-radius: 60px;
-            font-weight: 700;
-            text-decoration: none;
-            transition: 0.25s;
-            font-size: 1rem;
-        }
-        .download-btn.telegram-dl { background: #0088cc; color: white; }
-        .download-btn.direct-dl { background: var(--accent); color: white; }
-        .download-btn.drive-dl { background: #4285F4; color: white; }
-        .download-btn:hover { transform: translateY(-5px); filter: brightness(1.05); box-shadow: 0 8px 18px rgba(0,0,0,0.2); }
-
-        .movie-description {
-            font-size: 1rem;
-            line-height: 1.5;
-            color: var(--text-secondary);
-            background: var(--bg-primary);
-            padding: 1.2rem;
-            border-radius: 24px;
-            border-left: 4px solid var(--accent);
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        .section-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin: 1.5rem 0 1rem;
-            border-left: 6px solid var(--accent);
-            padding-left: 1rem;
-            letter-spacing: -0.3px;
-        }
-        .movies-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 1.2rem;
-        }
-        .movie-card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            transition: all 0.25s ease;
-            cursor: pointer;
-        }
-        .movie-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: var(--accent);
-            box-shadow: 0 20px 30px rgba(0,0,0,0.15);
-        }
-        .poster {
-            width: 100%;
-            aspect-ratio: 2 / 3;
-            background: linear-gradient(145deg, #3a2c24, #1e1714);
-            position: relative;
-        }
-        .poster img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-        .movie-card:hover .poster img { transform: scale(1.02); }
-        .badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: var(--accent);
-            color: white;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 30px;
-            font-size: 0.6rem;
-        }
-        .card-info { padding: 0.7rem; }
-        .movie-title { font-weight: 800; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .movie-meta { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.7rem; color: var(--text-secondary); }
-        .rating { color: var(--accent); font-weight: 700; }
-        .quality { background: rgba(230,57,70,0.2); padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 700; }
-        .no-results { text-align: center; padding: 2rem; background: var(--bg-card); border-radius: 40px; }
-        footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); margin-top: 2rem; color: var(--text-secondary); font-size: 0.85rem; }
-
-        /* Movie Request Page Styles */
+        /* Request Page */
         .request-container {
             max-width: 800px;
             margin: 2rem auto;
             background: var(--bg-card);
-            border-radius: 36px;
+            border-radius: 30px;
             padding: 2rem;
-            border: 1px solid var(--border);
         }
-        .request-container h2 {
-            margin-bottom: 1.5rem;
-            color: var(--accent);
-        }
-        .request-form .input-group {
-            margin-bottom: 1rem;
-        }
+        .request-form .input-group { margin-bottom: 1rem; }
         .request-form input, .request-form select, .request-form textarea {
             width: 100%;
-            padding: 12px 16px;
-            border-radius: 28px;
+            padding: 12px 18px;
+            border-radius: 30px;
             border: 1px solid var(--border);
             background: var(--input-bg);
             color: var(--text-primary);
-            font-family: inherit;
-        }
-        .request-form textarea {
-            min-height: 100px;
-            resize: vertical;
         }
         .request-form button {
+            width: 100%;
             background: var(--accent);
             color: white;
             border: none;
-            padding: 12px 28px;
-            border-radius: 40px;
-            font-weight: bold;
+            padding: 12px;
+            border-radius: 30px;
+            font-weight: 700;
             cursor: pointer;
-            width: 100%;
-            margin-top: 1rem;
         }
 
-        @media (max-width: 780px) {
+        /* Contact Page */
+        .contact-container { max-width: 1000px; margin: 2rem auto; }
+        .owners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .owner-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .owner-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent);
+            margin-bottom: 1rem;
+        }
+        .owner-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .wp-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #25D366;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+        }
+        .telegram-group-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #0088cc;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            width: fit-content;
+            margin: 2rem auto 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .loading { text-align: center; padding: 3rem; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            background: var(--bg-card);
+            border-radius: 30px;
+        }
+
+        .page { display: none; animation: fadeIn 0.4s ease; }
+        .page.active-page { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
             .navbar { padding: 0.8rem 1rem; }
-            .site-title { font-size: 1.4rem; }
-            .movies-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.8rem; }
-            .section-title { font-size: 1.4rem; }
-            .episode-item { flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+            .site-title { font-size: 1.3rem; }
+            .container { padding: 1rem; }
+            .movies-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+            .section-title { font-size: 1.3rem; }
+            .side-menu { width: 280px; }
         }
     </style>
 </head>
 <body>
 
+<!-- Navbar -->
 <div class="navbar">
-    <div class="navbar-top">
-        <div class="logo-area">
-            <img class="logo-img" src="https://i.ibb.co/RTSYV5hT/IMG-20260414-WA0038.jpg" alt="CineMax logo">
-            <div class="site-title">
-                <span class="cine-white">Cine</span><span class="max-red">Max</span>
-            </div>
+    <div class="navbar-content">
+        <div class="logo-area" onclick="showHome()">
+            <img class="logo-img" src="https://i.ibb.co/RTSYV5hT/IMG-20260414-WA0038.jpg" alt="CineMax">
+            <div class="site-title"><span class="cine">Cine</span><span class="max">Max</span></div>
         </div>
-        <div class="top-buttons">
-            <div class="theme-toggle" id="themeToggleBtn"><i class="fas fa-sun"></i></div>
-            <button class="menu-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
-        </div>
-    </div>
-    <div class="navbar-bottom" id="searchBarContainer">
         <div class="search-wrapper">
-            <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search movies, TV shows...">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" class="search-bar" placeholder="Search movies, TV shows...">
+        </div>
+        <div class="nav-buttons">
+            <div class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></div>
+            <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
         </div>
     </div>
 </div>
 
 <div class="overlay" id="menuOverlay"></div>
 <div class="side-menu" id="sideMenu">
-    <div class="menu-header"><button class="close-menu" id="closeMenuBtn"><i class="fas fa-times"></i></button></div>
-    <div class="google-login-container" id="googleLoginContainer"></div>
-    <div class="menu-item" data-filter="all">📽️ All Movies <i class="fas fa-angle-right"></i></div>
-    <div class="menu-item" id="languageItem">🌍 Language <i class="fas fa-chevron-down"></i></div>
+    <div class="menu-header"><button class="close-menu" id="closeMenu"><i class="fas fa-times"></i></button></div>
+    <div class="user-section" id="userSection"></div>
+    <div class="menu-item" data-filter="all"><span><i class="fas fa-film"></i> All Movies</span><i class="fas fa-chevron-right"></i></div>
+    <div class="menu-item" id="languageItem"><span><i class="fas fa-globe"></i> Language</span><i class="fas fa-chevron-down"></i></div>
     <div class="submenu" id="languageSub">
         <span data-lang="English">🇬🇧 English</span><span data-lang="Spanish">🇪🇸 Spanish</span>
         <span data-lang="Japanese">🇯🇵 Japanese</span><span data-lang="Korean">🇰🇷 Korean</span>
-        <span data-lang="French">🇫🇷 French</span><span data-lang="Hindi">🇮🇳 Hindi</span>
-        <span data-lang="Sinhala">🇱🇰 Sinhala</span>
+        <span data-lang="Hindi">🇮🇳 Hindi</span><span data-lang="Sinhala">🇱🇰 Sinhala</span>
         <span data-lang="Tamil">🇨🇮 Tamil</span>
     </div>
-    <div class="menu-item" id="genreItem">⭕ Genres <i class="fas fa-chevron-down"></i></div>
+    <div class="menu-item" id="genreItem"><span><i class="fas fa-tags"></i> Genres</span><i class="fas fa-chevron-down"></i></div>
     <div class="submenu" id="genreSub">
         <span data-genre="Action">🔥 Action</span><span data-genre="Anime">🌍 Anime</span>
-        <span data-genre="Donghua">⚡ Donghua</span><span data-genre="Sci-Fi">🚀 Sci-Fi</span>
-        <span data-genre="Thriller">🔪 Thriller</span><span data-genre="Drama">🎭 Drama</span>
-        <span data-genre="Comedy">😂 Comedy</span>
-        <span data-genre="18+">🥵 18+</span>
+        <span data-genre="Sci-Fi">🚀 Sci-Fi</span><span data-genre="Thriller">🔪 Thriller</span>
+        <span data-genre="Drama">🎭 Drama</span><span data-genre="Comedy">😂 Comedy</span>
+        <span data-genre="Romance">💕 Romance</span><span data-genre="Horror">👻 Horror</span>
     </div>
-    <div class="menu-item" data-filter="tv">📺 TV Shows <i class="fas fa-angle-right"></i></div>
-    <div class="menu-item" id="movieRequestBtn">🎬 Movie Request <i class="fas fa-angle-right"></i></div>
-    <div class="menu-item" id="contactPageBtn">📞 Contact Us <i class="fas fa-angle-right"></i></div>
+    <div class="menu-item" data-filter="tv"><span><i class="fas fa-tv"></i> TV Series</span><i class="fas fa-chevron-right"></i></div>
+    <div class="menu-item" id="movieRequestBtn"><span><i class="fas fa-plus-circle"></i> Request Movie</span><i class="fas fa-chevron-right"></i></div>
+    <div class="menu-item" id="contactBtn"><span><i class="fas fa-headset"></i> Contact Us</span><i class="fas fa-chevron-right"></i></div>
 </div>
 
-<!-- HOME PAGE -->
+<!-- Home Page -->
 <div id="homePage" class="page active-page">
     <div class="container">
-        <div id="trendingSection"><h2 class="section-title">©️ TRENDING NOW</h2><div id="trendingGrid" class="movies-grid"></div></div>
-        <div id="latestSection"><h2 class="section-title">©️ LATEST UPLOADS</h2><div id="latestGrid" class="movies-grid"></div></div>
-        <div id="noResultMsg" style="display: none;" class="no-results">එම එකක් නැ හුත්තො 😒</div>
+        <div class="section-title"><i class="fas fa-fire"></i> TRENDING NOW</div>
+        <div id="trendingGrid" class="movies-grid"><div class="loading"><div class="spinner"></div></div></div>
+        
+        <div class="section-title"><i class="fas fa-clock"></i> LATEST UPLOADS</div>
+        <div id="latestGrid" class="movies-grid"><div class="loading"><div class="spinner"></div></div></div>
+        
+        <div id="noResultMsg" class="no-results" style="display: none;"><i class="fas fa-frown"></i> No movies found</div>
     </div>
 </div>
 
-<!-- MOVIE DETAIL PAGE -->
+<!-- Movie Detail Page -->
 <div id="movieDetailPage" class="page">
     <div class="container">
         <div class="detail-header"><button class="back-button" id="backToHomeBtn"><i class="fas fa-arrow-left"></i> Back</button></div>
-        <div class="movie-slider-container"><div class="sliding-text" id="slidingMovieText">Avengers: Doomsday ( CineMax Movie Tm Watch Now 👇👇 )</div></div>
-        <div class="video-container" id="videoContainer">
-            <video id="detailVideoPlayer" controls controlsList="nodownload" poster="https://via.placeholder.com/800x450/1e1b1a/e63946?text=CineMax"></video>
-            <div class="video-overlay" id="videoOverlay">
-                <button class="skip-center-btn" id="skipBackCenter"><i class="fas fa-backward"></i> -10s</button>
-                <button class="skip-center-btn" id="skipForwardCenter">+10s <i class="fas fa-forward"></i></button>
-            </div>
-            <button class="quality-top-btn" id="qualityTopBtn"><i class="fas fa-cog"></i> <span id="currentQualityLabel">HD</span></button>
-            <div class="quality-dropdown" id="qualityDropdown">
-                <div data-quality="240">240p</div><div data-quality="360">360p</div>
-                <div data-quality="480">480p</div><div data-quality="720">720p</div>
-                <div data-quality="1080">1080p</div>
-            </div>
-        </div>
-        <div class="views-counter" id="viewsCounter">Views: 0</div>
-        <div class="download-options" id="downloadLinksContainer"></div>
-        <div class="movie-description" id="detailDescription">Watch the full movie in stunning HD quality.</div>
-        <div id="episodesContainer" class="episodes-section" style="display: none;"></div>
-        <div id="commentsSection" class="comments-section"></div>
+        <div class="video-container"><video id="detailVideoPlayer" controls controlsList="nodownload"></video></div>
+        <div class="views-counter" id="viewsCounter"><i class="fas fa-eye"></i> 0 views</div>
+        <div class="download-options" id="downloadLinks"></div>
+        <div class="movie-description" id="movieDescription"></div>
+        <div id="episodesContainer" style="display: none;"></div>
+        <div id="commentsSection"></div>
     </div>
 </div>
 
-<!-- MOVIE REQUEST PAGE (Updated: auto email via FormSubmit) -->
+<!-- Movie Request Page -->
 <div id="movieRequestPage" class="page">
     <div class="container">
         <div class="request-container">
-            <button class="back-button" id="backFromRequestBtn" style="margin-bottom:1rem;"><i class="fas fa-arrow-left"></i> Back to Home</button>
-            <h2><i class="fas fa-film"></i> Request a Movie / Series</h2>
-            <div id="requestLoginWarning" style="display: none;" class="no-results">🔒 Please login with Google to request movies.</div>
+            <button class="back-button" id="backFromRequestBtn" style="margin-bottom: 1rem;"><i class="fas fa-arrow-left"></i> Back</button>
+            <h2><i class="fas fa-film"></i> Request a Movie</h2>
+            <div id="requestLoginWarning" class="no-results" style="display: none; margin: 1rem 0;"><i class="fas fa-lock"></i> Please login with Google to request movies.</div>
             <form id="requestForm" class="request-form" style="display: none;">
-                <div class="input-group"><label>Your Name</label><input type="text" id="reqName" placeholder="Your name" required></div>
-                <div class="input-group"><label>Movie / Series Name *</label><input type="text" id="reqMovieName" placeholder="e.g., Inception 2" required></div>
-                <div class="input-group"><label>Category / Genre</label><input type="text" id="reqCategory" placeholder="Action, Sci-Fi, Drama..."></div>
-                <div class="input-group"><label>Language</label><input type="text" id="reqLanguage" placeholder="English, Korean, Hindi..."></div>
-                <div class="input-group"><label>Description / Details</label><textarea id="reqDescription" placeholder="Why you want this movie? Any extra info..."></textarea></div>
-                <button type="submit">📩 Send Request</button>
+                <div class="input-group"><input type="text" id="reqName" placeholder="Your Name"></div>
+                <div class="input-group"><input type="text" id="reqMovieName" placeholder="Movie / Series Name *" required></div>
+                <div class="input-group"><input type="text" id="reqCategory" placeholder="Genre / Category"></div>
+                <div class="input-group"><input type="text" id="reqLanguage" placeholder="Language"></div>
+                <div class="input-group"><textarea id="reqDescription" rows="4" placeholder="Additional details..."></textarea></div>
+                <button type="submit"><i class="fas fa-paper-plane"></i> Send Request</button>
             </form>
         </div>
     </div>
 </div>
 
-<!-- CONTACT PAGE (unchanged) -->
+<!-- Contact Page -->
 <div id="contactPage" class="page">
     <div class="container">
-        <div class="contact-page-container" style="max-width:800px; margin:2rem auto; background:var(--bg-card); border-radius:36px; padding:2rem; border:1px solid var(--border);">
-            <button class="back-button" id="backFromContactBtn" style="margin-bottom:1rem;"><i class="fas fa-arrow-left"></i> Back to Home</button>
-            <img class="modal-img" src="https://res.cloudinary.com/divxgmr1g/image/upload/v1776478522/bgi9bon1bdjjp8nhb5xt.jpg" alt="Contact Banner" style="width:100%; border-radius:24px; margin-bottom:1rem;">
-            <div style="font-size:2rem; font-weight:800; text-align:center; margin:1rem 0; background:linear-gradient(135deg, var(--accent), #c1121f); -webkit-background-clip:text; background-clip:text; color:transparent;">Contact Owners</div>
-            <div class="owners-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:1.5rem;">
-                <div class="owner-card" style="background:var(--bg-primary); border-radius:28px; padding:1rem; text-align:center; border:1px solid var(--border);">
-                    <img class="owner-logo" src="https://res.cloudinary.com/divxgmr1g/image/upload/v1776491034/feesv3tmgfkrj3lgg2oj.jpg" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--accent);">
-                    <div class="owner-name" style="font-weight:800;">Anuwa Dev</div>
-                    <a href="https://wa.me/+94766357263?text=_𝙝𝙮" target="_blank" class="wp-link" style="display:inline-flex; gap:8px; background:#25D366; color:white; padding:8px 16px; border-radius:40px; text-decoration:none;"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-                </div>
-                <div class="owner-card" style="background:var(--bg-primary); border-radius:28px; padding:1rem; text-align:center;">
-                    <img class="owner-logo" src="https://res.cloudinary.com/divxgmr1g/image/upload/v1776491104/ryfqh2kvob81hzh8jl6e.jpg" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--accent);">
-                    <div class="owner-name" style="font-weight:800;">DEXTER</div>
-                    <a href="https://wa.me/+94789958225?text=_𝙝𝙮" target="_blank" class="wp-link" style="display:inline-flex; gap:8px; background:#25D366; color:white; padding:8px 16px; border-radius:40px;"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-                </div>
-                 <div class="owner-card" style="background:var(--bg-primary); border-radius:28px; padding:1rem; text-align:center;">
-                    <img class="owner-logo" src="https://res.cloudinary.com/divxgmr1g/image/upload/v1776491257/quzbkjwzwvpvehx62bza.jpg" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--accent);">
-                    <div class="owner-name" style="font-weight:800;">Kaviya Dev</div>
-                    <a href="https://wa.me/+94741378096?text=_𝙝𝙮" target="_blank" class="wp-link" style="display:inline-flex; gap:8px; background:#25D366; color:white; padding:8px 16px; border-radius:40px;"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-                </div>
-                 <div class="owner-card" style="background:var(--bg-primary); border-radius:28px; padding:1rem; text-align:center;">
-                    <img class="owner-logo" src="https://res.cloudinary.com/divxgmr1g/image/upload/v1776491461/ouaojtg48ahewcvdclib.jpg" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--accent);">
-                    <div class="owner-name" style="font-weight:800;">Fixo Xd</div>
-                    <a href="https://wa.me/+94703945265?text=_𝙝𝙮" target="_blank" class="wp-link" style="display:inline-flex; gap:8px; background:#25D366; color:white; padding:8px 16px; border-radius:40px;"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-                </div>
-                 <div class="owner-card" style="background:var(--bg-primary); border-radius:28px; padding:1rem; text-align:center;">
-                    <img class="owner-logo" src="https://res.cloudinary.com/divxgmr1g/image/upload/v1776491637/ipjn3pdbjneyjxndwigq.jpg" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--accent);">
-                    <div class="owner-name" style="font-weight:800;">Thisaga Jithula</div>
-                    <a href="https://wa.me/+94719954277?text=_𝙝𝙮" target="_blank" class="wp-link" style="display:inline-flex; gap:8px; background:#25D366; color:white; padding:8px 16px; border-radius:40px;"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-                </div>
-                 <div class="owner-card" style="background:var(--bg-primary); border-radius:28px; padding:1rem; text-align:center;">
-                    <img class="owner-logo" src="https://res.cloudinary.com/divxgmr1g/image/upload/v1776491838/miunbgxjrppaw5pkszzd.jpg" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--accent);">
-                    <div class="owner-name" style="font-weight:800;">Dasun Gimhana</div>
-                    <a href="https://wa.me/+94719954277?text=_𝙝𝙮" target="_blank" class="wp-link" style="display:inline-flex; gap:8px; background:#25D366; color:white; padding:8px 16px; border-radius:40px;"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-                </div>
+        <div class="contact-container">
+            <button class="back-button" id="backFromContactBtn" style="margin-bottom: 1rem;"><i class="fas fa-arrow-left"></i> Back</button>
+            <h2 style="text-align: center;"><i class="fas fa-headset"></i> Contact Our Team</h2>
+            <div class="owners-grid">
+                <div class="owner-card"><img class="owner-avatar" src="https://res.cloudinary.com/divxgmr1g/image/upload/v1776491034/feesv3tmgfkrj3lgg2oj.jpg"><div class="owner-name">Anuwa Dev</div><a href="https://wa.me/+94766357263" target="_blank" class="wp-link"><i class="fab fa-whatsapp"></i> WhatsApp</a></div>
+                <div class="owner-card"><img class="owner-avatar" src="https://res.cloudinary.com/divxgmr1g/image/upload/v1776491104/ryfqh2kvob81hzh8jl6e.jpg"><div class="owner-name">DEXTER</div><a href="https://wa.me/+94789958225" target="_blank" class="wp-link"><i class="fab fa-whatsapp"></i> WhatsApp</a></div>
+                <div class="owner-card"><img class="owner-avatar" src="https://res.cloudinary.com/divxgmr1g/image/upload/v1776491257/quzbkjwzwvpvehx62bza.jpg"><div class="owner-name">Kaviya Dev</div><a href="https://wa.me/+94741378096" target="_blank" class="wp-link"><i class="fab fa-whatsapp"></i> WhatsApp</a></div>
+                <div class="owner-card"><img class="owner-avatar" src="https://res.cloudinary.com/divxgmr1g/image/upload/v1776491461/ouaojtg48ahewcvdclib.jpg"><div class="owner-name">Fixo Xd</div><a href="https://wa.me/+94703945265" target="_blank" class="wp-link"><i class="fab fa-whatsapp"></i> WhatsApp</a></div>
             </div>
-            <a href="https://t.me/dassabtth" target="_blank" class="telegram-group-btn" style="display:flex; align-items:center; justify-content:center; gap:12px; background:#0088cc; color:white; padding:12px 24px; border-radius:60px; text-decoration:none; width:fit-content; margin:1.5rem auto 0;"><i class="fab fa-telegram-plane"></i> Join Telegram Group</a>
+            <a href="https://t.me/dassabtth" target="_blank" class="telegram-group-btn"><i class="fab fa-telegram-plane"></i> Join Telegram Group</a>
         </div>
     </div>
 </div>
 
+<footer><p>&copy; 2026 CineMax. All rights reserved.</p></footer>
+
 <script>
-    // ---------- STORAGE & MOVIES (unchanged) ----------
+    const API_URL = window.location.origin + '/api';
     let moviesArray = [];
-    const STORAGE_KEY = "cinemax_movies_db";
-    const DB_NAME = "CineMaxVideoDB";
-    const STORE_NAME = "videoBlobs";
-    let db = null;
     let currentLoggedInUser = null;
-    let currentMovieId = null;
-    let currentEpisode = null;
-
-    function initIndexedDB() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, 1);
-            request.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    db.createObjectStore(STORE_NAME);
-                }
-            };
-            request.onsuccess = (e) => { db = e.target.result; resolve(); };
-            request.onerror = (e) => reject(e);
-        });
-    }
-
-    async function getVideoBlob(blobId) {
-        if (!db) await initIndexedDB();
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readonly');
-            const store = tx.objectStore(STORE_NAME);
-            const getReq = store.get(blobId);
-            getReq.onsuccess = () => resolve(getReq.result);
-            getReq.onerror = () => reject(getReq.error);
-        });
-    }
+    let currentMovie = null;
+    let currentFilter = { searchTerm: "", type: "all", genre: null, language: null };
 
     async function loadMovies() {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-            moviesArray = JSON.parse(stored);
-        } else {
-            moviesArray = [
-                { id: 1, title: "Avengers: Doomsday", year: 2026, rating: 8.9, quality: "4K HDR", genre: "Action", language: "English", type: "movie", isTrending: true, isLatest: false, posterImg: "https://image.tmdb.org/t/p/w500/7RyHsO4yDXtBv1zUU3mTpBuQUrO.jpg", description: "The Avengers face their greatest threat yet.", videoBlobId: null, videoUrl: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4", qualityUrls: { 240: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4", 360: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4", 480: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4", 720: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4", 1080: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4" }, directLink: "https://files.catbox.moe/dazxqu.mp4", telegramLink: "https://t.me/dassabtth", driveLink: "https://files.catbox.moe/dazxqu.mp4", views: 0, episodes: [] },
-                { id: 2, title: "Mission: Impossible 8", year: 2025, rating: 8.5, quality: "4K", genre: "Action", language: "English", type: "movie", isTrending: true, isLatest: false, posterImg: "https://image.tmdb.org/t/p/w500/8j58iEBw9pOXw2M8Zmq8i9qG9bD.jpg", description: "Ethan Hunt returns.", videoBlobId: null, videoUrl: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4", qualityUrls: { 240: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4", 360: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4", 480: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4", 720: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4", 1080: "https://res.cloudinary.com/divxgmr1g/video/upload/v1776394798/uxrdxyhmj5evnuxaljvn.mp4" }, directLink: "https://files.catbox.moe/dazxqu.mp4", telegramLink: "https://t.me/dassabtth", driveLink: "https://files.catbox.moe/dazxqu.mp4", views: 0, episodes: [] },
-                { id: 3, title: "Squid Game S3", year: 2026, rating: 7.9, quality: "1080p", genre: "Thriller", language: "Korean", type: "tv", isTrending: true, isLatest: false, posterImg: "https://image.tmdb.org/t/p/w500/7iHn3U9Vv3g9Qx2fQ4Q7Qw6Q9Q.jpg", description: "New deadly games.", videoBlobId: null, videoUrl: "", directLink: "", telegramLink: "https://t.me/dassabtth", driveLink: "", views: 0, episodes: [] },
-                { id: 4, title: "Dune: Prophecy", year: 2026, rating: 8.2, quality: "4K HDR", genre: "Sci-Fi", language: "English", type: "tv", isTrending: false, isLatest: true, posterImg: "https://image.tmdb.org/t/p/w500/8bRIfPG9u8l7qJ2Q5q9Q9Q9Q9Q.jpg", description: "Bene Gesserit rise.", videoBlobId: null, videoUrl: "", directLink: "", telegramLink: "https://t.me/dassabtth", driveLink: "", views: 0, episodes: [] },
-                { id: 5, title: "The Last of Us S2", year: 2025, rating: 9.1, quality: "4K", genre: "Drama", language: "English", type: "tv", isTrending: false, isLatest: true, posterImg: "https://image.tmdb.org/t/p/w500/5pQ9Q9Q9Q9Q9Q9Q9Q9Q9Q9Q.jpg", description: "Ellie's revenge.", videoBlobId: null, videoUrl: "", directLink: "", telegramLink: "https://t.me/dassabtth", driveLink: "", views: 0, episodes: [] }
-            ];
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(moviesArray));
-        }
-    }
-
-    function saveMovies() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(moviesArray));
-    }
-
-    // ---------- GOOGLE LOGIN (unchanged) ----------
-    const CLIENT_ID = "632556909730-ci1mdngs1jgla3fu7nj8jvfocmh84vcs.apps.googleusercontent.com";
-    function initializeGoogleSignIn() {
-        google.accounts.id.initialize({
-            client_id: CLIENT_ID,
-            callback: handleCredentialResponse,
-            auto_select: false,
-            cancel_on_tap_outside: true
-        });
-        google.accounts.id.renderButton(
-            document.getElementById("googleLoginContainer"),
-            { theme: "outline", size: "large", width: "100%" }
-        );
-        const savedUser = localStorage.getItem("cinemax_google_user");
-        if (savedUser) {
-            currentLoggedInUser = JSON.parse(savedUser);
-            updateUIBasedOnLogin();
-        }
-        updateRequestPageVisibility();
-    }
-    function handleCredentialResponse(response) {
-        const payload = parseJwt(response.credential);
-        if (payload) {
-            currentLoggedInUser = { name: payload.name, email: payload.email, picture: payload.picture };
-            localStorage.setItem("cinemax_google_user", JSON.stringify(currentLoggedInUser));
-            updateUIBasedOnLogin();
-            if (currentMovieId && document.getElementById('movieDetailPage').classList.contains('active-page')) renderComments(currentMovieId);
-            updateRequestPageVisibility();
-        }
-    }
-    function parseJwt(token) {
         try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-            return JSON.parse(jsonPayload);
-        } catch(e) { return null; }
-    }
-    function logoutGoogle() {
-        google.accounts.id.disableAutoSelect();
-        localStorage.removeItem("cinemax_google_user");
-        currentLoggedInUser = null;
-        updateUIBasedOnLogin();
-        if (currentMovieId && document.getElementById('movieDetailPage').classList.contains('active-page')) renderComments(currentMovieId);
-        updateRequestPageVisibility();
-    }
-    function updateUIBasedOnLogin() {
-        const container = document.getElementById("googleLoginContainer");
-        if (!container) return;
-        if (currentLoggedInUser) {
-            container.innerHTML = `<div class="user-info"><img class="user-avatar" src="${currentLoggedInUser.picture}" alt="avatar"><span class="user-name">${escapeHtml(currentLoggedInUser.name)}</span><button class="logout-btn" id="logoutBtn">Logout</button></div>`;
-            document.getElementById("logoutBtn")?.addEventListener("click", logoutGoogle);
-        } else {
-            container.innerHTML = '<div id="googleButtonPlaceholder"></div>';
-            google.accounts.id.renderButton(document.getElementById("googleButtonPlaceholder"), { theme: "outline", size: "large", width: "100%" });
+            const response = await fetch(`${API_URL}/movies`);
+            if (!response.ok) throw new Error('Failed to load');
+            moviesArray = await response.json();
+            renderHome();
+        } catch (error) {
+            console.error(error);
+            document.getElementById('trendingGrid').innerHTML = '<div class="no-results">❌ Failed to load movies. Make sure MongoDB is running.</div>';
         }
     }
 
-    // ---------- MOVIE REQUEST: Auto email via FormSubmit ----------
-    function updateRequestPageVisibility() {
-        const warning = document.getElementById('requestLoginWarning');
-        const form = document.getElementById('requestForm');
-        if (!warning || !form) return;
-        if (currentLoggedInUser) {
-            warning.style.display = 'none';
-            form.style.display = 'block';
-        } else {
-            warning.style.display = 'block';
-            form.style.display = 'none';
-        }
-    }
-
-    async function handleMovieRequest(e) {
-        e.preventDefault();
-        if (!currentLoggedInUser) {
-            alert("Please login with Google to request a movie.");
-            return;
-        }
-        const name = document.getElementById('reqName').value.trim() || currentLoggedInUser.name;
-        const movieName = document.getElementById('reqMovieName').value.trim();
-        if (!movieName) {
-            alert("Please enter the movie/series name.");
-            return;
-        }
-        const category = document.getElementById('reqCategory').value.trim() || "Not specified";
-        const language = document.getElementById('reqLanguage').value.trim() || "Not specified";
-        const description = document.getElementById('reqDescription').value.trim() || "No description";
-        const userEmail = currentLoggedInUser.email;
-
-        // Prepare data for FormSubmit (free email service)
-        const formData = new FormData();
-        formData.append('name', name);
-        formData.append('movie', movieName);
-        formData.append('category', category);
-        formData.append('language', language);
-        formData.append('description', description);
-        formData.append('requester_email', userEmail);
-        formData.append('_subject', `🎬 Movie Request: ${movieName}`);
-        formData.append('_replyto', userEmail);
-        formData.append('_template', 'table');
-        formData.append('_captcha', 'false');   // disable captcha (optional)
-        formData.append('_redirect', 'https://cinemax.local/success'); // dummy redirect (won't actually navigate)
-
-        try {
-            const response = await fetch('https://formsubmit.co/ajax/darksamuraimd2@gmail.com', {
-                method: 'POST',
-                body: formData
-            });
-            if (response.ok) {
-                alert("✅ Request sent successfully! We'll review and add soon.");
-                // Clear form
-                document.getElementById('reqName').value = '';
-                document.getElementById('reqMovieName').value = '';
-                document.getElementById('reqCategory').value = '';
-                document.getElementById('reqLanguage').value = '';
-                document.getElementById('reqDescription').value = '';
-            } else {
-                alert("❌ Failed to send. Please try again later.");
-            }
-        } catch (err) {
-            console.error(err);
-            alert("❌ Network error. Please check your connection.");
-        }
-    }
-
-    // ---------- COMMENTS (unchanged) ----------
-    function getCommentsKey(movieId) { return `cinemax_comments_${movieId}`; }
-    function loadComments(movieId) {
-        const stored = localStorage.getItem(getCommentsKey(movieId));
-        return stored ? JSON.parse(stored) : [];
-    }
-    function saveComments(movieId, comments) {
-        localStorage.setItem(getCommentsKey(movieId), JSON.stringify(comments));
-    }
-    function addComment(movieId, text) {
-        if (!currentLoggedInUser) { alert("Please login with Google to comment"); return false; }
-        if (!text.trim()) return false;
-        const comments = loadComments(movieId);
-        comments.push({ id: Date.now(), username: currentLoggedInUser.name, userAvatar: currentLoggedInUser.picture, text: text.trim(), timestamp: new Date().toISOString(), likes: 0, replies: [] });
-        saveComments(movieId, comments);
-        return true;
-    }
-    function addReply(movieId, commentId, replyText) {
-        if (!currentLoggedInUser) { alert("Login to reply"); return false; }
-        const comments = loadComments(movieId);
-        const comment = comments.find(c => c.id == commentId);
-        if (comment) {
-            comment.replies.push({ id: Date.now(), username: currentLoggedInUser.name, userAvatar: currentLoggedInUser.picture, text: replyText.trim(), timestamp: new Date().toISOString(), likes: 0 });
-            saveComments(movieId, comments);
-            return true;
-        }
-        return false;
-    }
-    function likeComment(movieId, commentId, isReply = false, replyId = null) {
-        if (!currentLoggedInUser) { alert("Login to like"); return false; }
-        const comments = loadComments(movieId);
-        if (!isReply) {
-            const comment = comments.find(c => c.id == commentId);
-            if (comment) comment.likes = (comment.likes || 0) + 1;
-        } else {
-            const comment = comments.find(c => c.id == commentId);
-            if (comment) {
-                const reply = comment.replies.find(r => r.id == replyId);
-                if (reply) reply.likes = (reply.likes || 0) + 1;
-            }
-        }
-        saveComments(movieId, comments);
-        return true;
-    }
-    function renderComments(movieId) {
-        const container = document.getElementById('commentsSection');
-        if (!container) return;
-        if (!currentLoggedInUser) {
-            container.innerHTML = `<p>🔒 Please <a href="#" id="loginPromptLink">login with Google</a> to comment and interact.</p>`;
-            document.getElementById('loginPromptLink')?.addEventListener('click', (e) => { e.preventDefault(); openMenu(); });
-            return;
-        }
-        const comments = loadComments(movieId);
-        let html = `<h3>💬 Comments (${comments.length})</h3><div class="comment-input-area"><textarea id="newCommentText" placeholder="Write a comment..." rows="2"></textarea><button id="submitCommentBtn">Post Comment</button></div>`;
-        comments.forEach(comment => {
-            html += `<div class="comment" data-id="${comment.id}"><div class="comment-header"><span class="comment-user">${escapeHtml(comment.username)}</span><span>${new Date(comment.timestamp).toLocaleString()}</span></div><div class="comment-text">${escapeHtml(comment.text)}</div><div class="comment-actions"><button class="like-comment" data-id="${comment.id}"><i class="fas fa-heart"></i> Like (<span class="like-count">${comment.likes || 0}</span>)</button><button class="reply-comment" data-id="${comment.id}">💬 Reply</button></div><div class="replies" id="replies-${comment.id}">`;
-            comment.replies.forEach(reply => {
-                html += `<div class="comment" style="margin-left:0;"><div class="comment-header"><span class="comment-user">${escapeHtml(reply.username)}</span><span>${new Date(reply.timestamp).toLocaleString()}</span></div><div>${escapeHtml(reply.text)}</div><button class="like-reply" data-comment="${comment.id}" data-reply="${reply.id}"><i class="fas fa-heart"></i> Like (<span class="like-count">${reply.likes || 0}</span>)</button></div>`;
-            });
-            html += `</div><div class="reply-box" id="reply-box-${comment.id}" style="display:none;"><input type="text" placeholder="Write a reply..." id="replyInput-${comment.id}"><button class="sendReplyBtn" data-id="${comment.id}">Reply</button></div></div>`;
-        });
-        container.innerHTML = html;
-        document.getElementById('submitCommentBtn')?.addEventListener('click', () => { const text = document.getElementById('newCommentText').value; if (addComment(movieId, text)) { document.getElementById('newCommentText').value = ''; renderComments(movieId); } });
-        document.querySelectorAll('.like-comment').forEach(btn => { btn.addEventListener('click', () => { likeComment(movieId, parseInt(btn.dataset.id)); renderComments(movieId); }); });
-        document.querySelectorAll('.like-reply').forEach(btn => { btn.addEventListener('click', () => { likeComment(movieId, parseInt(btn.dataset.comment), true, parseInt(btn.dataset.reply)); renderComments(movieId); }); });
-        document.querySelectorAll('.reply-comment').forEach(btn => { btn.addEventListener('click', () => { const box = document.getElementById(`reply-box-${btn.dataset.id}`); box.style.display = box.style.display === 'none' ? 'flex' : 'none'; }); });
-        document.querySelectorAll('.sendReplyBtn').forEach(btn => { btn.addEventListener('click', () => { const commentId = parseInt(btn.dataset.id); const input = document.getElementById(`replyInput-${commentId}`); if (addReply(movieId, commentId, input.value)) { input.value = ''; renderComments(movieId); } }); });
-    }
-
-    // ---------- RENDER HOME (unchanged) ----------
-    let currentFilter = { searchTerm: "", type: "all", genre: null, language: null };
     function renderHome() {
         let filtered = [...moviesArray];
         if (currentFilter.searchTerm) filtered = filtered.filter(m => m.title.toLowerCase().includes(currentFilter.searchTerm.toLowerCase()));
@@ -1108,216 +723,203 @@
         if (currentFilter.language) filtered = filtered.filter(m => m.language === currentFilter.language);
         if (currentFilter.type === "tv") filtered = filtered.filter(m => m.type === "tv");
         else if (currentFilter.type === "movie") filtered = filtered.filter(m => m.type === "movie");
-        const trending = filtered.filter(m => m.isTrending === true);
-        const latest = filtered.filter(m => m.isLatest === true);
-        const trendingGrid = document.getElementById("trendingGrid");
-        const latestGrid = document.getElementById("latestGrid");
-        const noResult = document.getElementById("noResultMsg");
-        if (trending.length === 0 && latest.length === 0) {
-            trendingGrid.innerHTML = ""; latestGrid.innerHTML = ""; noResult.style.display = "block";
-        } else {
-            noResult.style.display = "none";
-            trendingGrid.innerHTML = trending.map(m => createCard(m)).join('');
-            latestGrid.innerHTML = latest.map(m => createCard(m)).join('');
-        }
+        
+        const trending = filtered.filter(m => m.isTrending);
+        const latest = filtered.filter(m => m.isLatest);
+        
+        document.getElementById('trendingGrid').innerHTML = trending.length ? trending.map(m => createCard(m)).join('') : '<div class="no-results">No trending movies</div>';
+        document.getElementById('latestGrid').innerHTML = latest.length ? latest.map(m => createCard(m)).join('') : '<div class="no-results">No latest movies</div>';
+        document.getElementById('noResultMsg').style.display = (trending.length === 0 && latest.length === 0 && filtered.length > 0) ? 'block' : 'none';
         attachCardEvents();
     }
+
     function createCard(m) {
-        const poster = m.posterImg && m.posterImg.startsWith("http") ? m.posterImg : "https://via.placeholder.com/300x450/2c2c2c/e63946?text=🎬";
-        return `<div class="movie-card" data-id="${m.id}"><div class="poster"><img src="${poster}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/2c2c2c/e63946?text=🎬'"><div class="badge">${m.quality}</div></div><div class="card-info"><div class="movie-title">${escapeHtml(m.title)}</div><div class="movie-meta"><span>${m.year}</span><span class="rating">⭐ ${m.rating}</span></div><div class="movie-meta"><span>${m.genre}</span><span>${m.language}</span></div></div></div>`;
+        return `<div class="movie-card" data-id="${m._id}">
+            <div class="poster"><img src="${m.posterImg || 'https://via.placeholder.com/300x450'}" onerror="this.src='https://via.placeholder.com/300x450'"><div class="badge">${m.quality || 'HD'}</div>${m.isTrending ? '<div class="trending-badge"><i class="fas fa-fire"></i> Trending</div>' : ''}</div>
+            <div class="card-info"><div class="movie-title">${escapeHtml(m.title)}</div><div class="movie-meta"><span>${m.year || 'N/A'}</span><span class="rating"><i class="fas fa-star"></i> ${m.rating || 'N/A'}</span></div></div>
+        </div>`;
     }
-    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
     function attachCardEvents() {
         document.querySelectorAll('.movie-card').forEach(card => {
-            card.removeEventListener('click', movieClickHandler);
-            card.addEventListener('click', movieClickHandler);
-        });
-    }
-    function movieClickHandler(e) {
-        const id = parseInt(this.getAttribute('data-id'));
-        const movie = moviesArray.find(m => m.id === id);
-        if (movie) openMovieDetail(movie);
-    }
-
-    let currentVideoObjectUrl = null;
-    let currentMovie = null;
-
-    async function playEpisode(movie, episode) {
-        currentEpisode = episode;
-        episode.views = (episode.views || 0) + 1;
-        saveMovies();
-        const video = document.getElementById('detailVideoPlayer');
-        let videoSrc = episode.videoUrl;
-        if (episode.videoBlobId) {
-            const blob = await getVideoBlob(episode.videoBlobId);
-            if (blob) {
-                if (currentVideoObjectUrl) URL.revokeObjectURL(currentVideoObjectUrl);
-                currentVideoObjectUrl = URL.createObjectURL(blob);
-                videoSrc = currentVideoObjectUrl;
-            }
-        }
-        video.src = videoSrc || "";
-        video.load();
-        document.getElementById('viewsCounter').innerText = `Views: ${episode.views || 0}`;
-        const dlContainer = document.getElementById('downloadLinksContainer');
-        dlContainer.innerHTML = `<a href="${episode.telegramLink || '#'}" target="_blank" class="download-btn telegram-dl" ${!episode.telegramLink ? 'style="opacity:0.5; pointer-events:none;"' : ''}><i class="fab fa-telegram-plane"></i> Telegram</a>
-            <a href="${episode.directLink || '#'}" ${episode.directLink ? 'download' : ''} class="download-btn direct-dl" ${!episode.directLink ? 'style="opacity:0.5; pointer-events:none;"' : ''}><i class="fas fa-download"></i> Direct Download</a>
-            <a href="${episode.driveLink || '#'}" target="_blank" class="download-btn drive-dl" ${!episode.driveLink ? 'style="opacity:0.5; pointer-events:none;"' : ''}><i class="fab fa-google-drive"></i> Drive Download</a>`;
-        document.getElementById('currentQualityLabel').innerText = episode.quality || movie.quality || "HD";
-    }
-
-    function renderEpisodes(movie) {
-        const container = document.getElementById('episodesContainer');
-        if (!movie.episodes || movie.episodes.length === 0) {
-            container.style.display = 'none';
-            return;
-        }
-        container.style.display = 'block';
-        const seasons = {};
-        movie.episodes.forEach(ep => {
-            if (!seasons[ep.season]) seasons[ep.season] = [];
-            seasons[ep.season].push(ep);
-        });
-        let html = `<h3><i class="fas fa-tv"></i> Seasons & Episodes</h3>`;
-        for (let s in seasons) {
-            html += `<div class="season-group"><div class="season-title">Season ${s}</div>`;
-            seasons[s].sort((a,b) => a.episode - b.episode).forEach(ep => {
-                html += `<div class="episode-item" data-episode-id="${ep.id}">
-                            <div class="episode-title">Episode ${ep.episode}${ep.title ? `: ${escapeHtml(ep.title)}` : ''}</div>
-                            <div class="episode-meta">${ep.views || 0} views</div>
-                         </div>`;
+            card.addEventListener('click', () => {
+                const movie = moviesArray.find(m => m._id === card.dataset.id);
+                if (movie) openMovieDetail(movie);
             });
-            html += `</div>`;
-        }
-        container.innerHTML = html;
-        container.querySelectorAll('.episode-item').forEach(el => {
-            const epId = el.getAttribute('data-episode-id');
-            const episode = movie.episodes.find(e => e.id == epId);
-            if (episode) {
-                el.addEventListener('click', () => playEpisode(movie, episode));
-            }
         });
     }
 
     async function openMovieDetail(movie) {
         currentMovie = movie;
-        currentMovieId = movie.id;
-        if (movie.type !== 'tv') {
-            movie.views = (movie.views || 0) + 1;
-            saveMovies();
-        }
-        if (currentVideoObjectUrl) { URL.revokeObjectURL(currentVideoObjectUrl); currentVideoObjectUrl = null; }
+        try { await fetch(`${API_URL}/movies/${movie._id}/view`, { method: 'POST' }); } catch(e) {}
+        
         document.getElementById('homePage').classList.remove('active-page');
         document.getElementById('movieDetailPage').classList.add('active-page');
-        document.getElementById('contactPage').classList.remove('active-page');
         document.getElementById('movieRequestPage').classList.remove('active-page');
-        document.getElementById('slidingMovieText').innerText = `${movie.title} | CineMax Watch Now 👇👇`;
+        document.getElementById('contactPage').classList.remove('active-page');
+        
         const video = document.getElementById('detailVideoPlayer');
-        let videoSrc = movie.videoUrl;
-        if (movie.videoBlobId) {
-            const blob = await getVideoBlob(movie.videoBlobId);
-            if (blob) { currentVideoObjectUrl = URL.createObjectURL(blob); videoSrc = currentVideoObjectUrl; }
-        }
-        video.src = videoSrc || "";
+        video.src = movie.videoUrl || movie.directLink || '';
         video.load();
-        document.getElementById('detailDescription').innerHTML = movie.description || "Full HD movie experience.";
-        document.getElementById('viewsCounter').innerText = `Views: ${movie.views || 0}`;
-        const dlContainer = document.getElementById('downloadLinksContainer');
-        dlContainer.innerHTML = `<a href="${movie.telegramLink || '#'}" target="_blank" class="download-btn telegram-dl" ${!movie.telegramLink ? 'style="opacity:0.5; pointer-events:none;"' : ''}><i class="fab fa-telegram-plane"></i> Telegram</a>
-            <a href="${movie.directLink || '#'}" ${movie.directLink ? 'download' : ''} class="download-btn direct-dl" ${!movie.directLink ? 'style="opacity:0.5; pointer-events:none;"' : ''}><i class="fas fa-download"></i> Direct Download</a>
-            <a href="${movie.driveLink || '#'}" target="_blank" class="download-btn drive-dl" ${!movie.driveLink ? 'style="opacity:0.5; pointer-events:none;"' : ''}><i class="fab fa-google-drive"></i> Drive Download</a>`;
-        document.getElementById('currentQualityLabel').innerText = movie.quality || "HD";
-        renderComments(movie.id);
-        if (movie.type === 'tv') {
-            renderEpisodes(movie);
+        
+        document.getElementById('viewsCounter').innerHTML = `<i class="fas fa-eye"></i> ${movie.views || 0} views`;
+        document.getElementById('movieDescription').innerHTML = `<h3>${escapeHtml(movie.title)} (${movie.year || 'N/A'})</h3><p>${movie.description || 'No description'}</p><div style="margin-top:1rem;"><span class="badge" style="background:var(--accent);">${movie.genre || 'N/A'}</span> <span class="badge" style="background:#2c3e50;">${movie.language || 'N/A'}</span></div>`;
+        
+        document.getElementById('downloadLinks').innerHTML = `
+            ${movie.telegramLink ? `<a href="${movie.telegramLink}" target="_blank" class="download-btn telegram"><i class="fab fa-telegram-plane"></i> Telegram</a>` : ''}
+            ${movie.directLink ? `<a href="${movie.directLink}" class="download-btn direct"><i class="fas fa-download"></i> Direct</a>` : ''}
+            ${movie.driveLink ? `<a href="${movie.driveLink}" target="_blank" class="download-btn drive"><i class="fab fa-google-drive"></i> Drive</a>` : ''}
+        `;
+        
+        if (movie.type === 'tv' && movie.episodes?.length) renderEpisodes(movie);
+        else document.getElementById('episodesContainer').style.display = 'none';
+        
+        renderComments(movie._id);
+    }
+
+    function renderEpisodes(movie) {
+        const container = document.getElementById('episodesContainer');
+        container.style.display = 'block';
+        const seasons = {};
+        movie.episodes.forEach(ep => { if (!seasons[ep.season]) seasons[ep.season] = []; seasons[ep.season].push(ep); });
+        let html = `<h3><i class="fas fa-tv"></i> Episodes</h3>`;
+        for (let s in seasons) {
+            html += `<div class="season-group"><div class="season-title">Season ${s}</div>`;
+            seasons[s].forEach(ep => {
+                html += `<div class="episode-item" data-ep='${JSON.stringify(ep)}'><div>Episode ${ep.episode}: ${ep.title || ''}</div><div><i class="fas fa-eye"></i> ${ep.views || 0}</div></div>`;
+            });
+            html += `</div>`;
+        }
+        container.innerHTML = html;
+        container.querySelectorAll('.episode-item').forEach(el => {
+            el.addEventListener('click', () => {
+                const ep = JSON.parse(el.dataset.ep);
+                document.getElementById('detailVideoPlayer').src = ep.videoUrl || '';
+                document.getElementById('detailVideoPlayer').load();
+                fetch(`${API_URL}/movies/${movie._id}/episodes/${ep.id}/view`, { method: 'POST' }).catch(e=>{});
+            });
+        });
+    }
+
+    // Comments, Google Login, Request Form (same as before - kept for functionality)
+    function getCommentsKey(movieId) { return `cinemax_comments_${movieId}`; }
+    function loadComments(movieId) { const stored = localStorage.getItem(getCommentsKey(movieId)); return stored ? JSON.parse(stored) : []; }
+    function saveComments(movieId, comments) { localStorage.setItem(getCommentsKey(movieId), JSON.stringify(comments)); }
+    
+    function renderComments(movieId) {
+        const container = document.getElementById('commentsSection');
+        if (!currentLoggedInUser) {
+            container.innerHTML = `<h3>Comments</h3><div class="no-results"><i class="fas fa-lock"></i> Login to comment</div>`;
+            return;
+        }
+        const comments = loadComments(movieId);
+        let html = `<h3>Comments (${comments.length})</h3><div class="comment-input-area"><textarea id="newComment" placeholder="Write a comment..."></textarea><button id="postComment">Post</button></div>`;
+        comments.forEach(c => {
+            html += `<div class="comment"><div class="comment-header"><img class="comment-avatar" src="${c.userAvatar || ''}"><span class="comment-user">${escapeHtml(c.username)}</span></div><div class="comment-text">${escapeHtml(c.text)}</div></div>`;
+        });
+        container.innerHTML = html;
+        document.getElementById('postComment')?.addEventListener('click', () => {
+            const text = document.getElementById('newComment').value;
+            if (text.trim()) {
+                const comments = loadComments(movieId);
+                comments.push({ id: Date.now(), username: currentLoggedInUser.name, userAvatar: currentLoggedInUser.picture, text: text.trim(), timestamp: new Date().toISOString(), likes: 0, replies: [] });
+                saveComments(movieId, comments);
+                renderComments(movieId);
+            }
+        });
+    }
+
+    const CLIENT_ID = "632556909730-ci1mdngs1jgla3fu7nj8jvfocmh84vcs.apps.googleusercontent.com";
+    function initializeGoogleSignIn() {
+        google.accounts.id.initialize({ client_id: CLIENT_ID, callback: handleCredentialResponse });
+        const saved = localStorage.getItem("cinemax_google_user");
+        if (saved) currentLoggedInUser = JSON.parse(saved);
+        updateUserUI();
+    }
+    function handleCredentialResponse(response) {
+        const payload = JSON.parse(atob(response.credential.split('.')[1]));
+        currentLoggedInUser = { name: payload.name, email: payload.email, picture: payload.picture };
+        localStorage.setItem("cinemax_google_user", JSON.stringify(currentLoggedInUser));
+        updateUserUI();
+        if (currentMovie) renderComments(currentMovie._id);
+    }
+    function logoutGoogle() {
+        localStorage.removeItem("cinemax_google_user");
+        currentLoggedInUser = null;
+        updateUserUI();
+    }
+    function updateUserUI() {
+        const section = document.getElementById('userSection');
+        if (currentLoggedInUser) {
+            section.innerHTML = `<div class="user-info"><img class="user-avatar" src="${currentLoggedInUser.picture}"><div class="user-details"><div class="user-name">${escapeHtml(currentLoggedInUser.name)}</div></div><button class="logout-btn" id="logoutBtn">Logout</button></div>`;
+            document.getElementById('logoutBtn')?.addEventListener('click', logoutGoogle);
         } else {
-            document.getElementById('episodesContainer').style.display = 'none';
+            section.innerHTML = '<div id="googleBtn"></div>';
+            google.accounts.id.renderButton(document.getElementById("googleBtn"), { theme: "outline", size: "large", width: "100%" });
+        }
+        const warning = document.getElementById('requestLoginWarning');
+        const form = document.getElementById('requestForm');
+        if (warning && form) {
+            if (currentLoggedInUser) { warning.style.display = 'none'; form.style.display = 'block'; }
+            else { warning.style.display = 'block'; form.style.display = 'none'; }
         }
     }
+
+    document.getElementById('requestForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!currentLoggedInUser) { alert("Login first"); return; }
+        const formData = new FormData();
+        formData.append('name', document.getElementById('reqName').value || currentLoggedInUser.name);
+        formData.append('movie', document.getElementById('reqMovieName').value);
+        formData.append('category', document.getElementById('reqCategory').value);
+        formData.append('language', document.getElementById('reqLanguage').value);
+        formData.append('description', document.getElementById('reqDescription').value);
+        formData.append('_subject', 'Movie Request');
+        formData.append('_replyto', currentLoggedInUser.email);
+        const res = await fetch('https://formsubmit.co/ajax/darksamuraimd2@gmail.com', { method: 'POST', body: formData });
+        if (res.ok) alert("Request sent!");
+        else alert("Failed");
+    });
 
     function showHome() {
-        if (currentVideoObjectUrl) { URL.revokeObjectURL(currentVideoObjectUrl); currentVideoObjectUrl = null; }
-        document.getElementById('movieDetailPage').classList.remove('active-page');
-        document.getElementById('contactPage').classList.remove('active-page');
-        document.getElementById('movieRequestPage').classList.remove('active-page');
         document.getElementById('homePage').classList.add('active-page');
-        renderHome();
-    }
-
-    function showMovieRequest() {
-        closeMenu();
-        document.getElementById('homePage').classList.remove('active-page');
         document.getElementById('movieDetailPage').classList.remove('active-page');
+        document.getElementById('movieRequestPage').classList.remove('active-page');
         document.getElementById('contactPage').classList.remove('active-page');
-        document.getElementById('movieRequestPage').classList.add('active-page');
-        updateRequestPageVisibility();
-    }
-
-    // Video overlay and quality switcher (unchanged)
-    const videoContainer = document.getElementById('videoContainer');
-    const videoOverlay = document.getElementById('videoOverlay');
-    let overlayTimeout;
-    function showOverlay() {
-        videoOverlay.classList.add('show');
-        clearTimeout(overlayTimeout);
-        overlayTimeout = setTimeout(() => { videoOverlay.classList.remove('show'); }, 3000);
-    }
-    videoContainer?.addEventListener('click', showOverlay);
-    document.getElementById('skipBackCenter')?.addEventListener('click', (e) => { e.stopPropagation(); const vid = document.getElementById('detailVideoPlayer'); if(vid) vid.currentTime = Math.max(0, vid.currentTime - 10); showOverlay(); });
-    document.getElementById('skipForwardCenter')?.addEventListener('click', (e) => { e.stopPropagation(); const vid = document.getElementById('detailVideoPlayer'); if(vid) vid.currentTime = Math.min(vid.duration, vid.currentTime + 10); showOverlay(); });
-    const qualityTopBtn = document.getElementById('qualityTopBtn');
-    const qualityDropdown = document.getElementById('qualityDropdown');
-    qualityTopBtn?.addEventListener('click', (e) => { e.stopPropagation(); qualityDropdown.classList.toggle('show'); showOverlay(); });
-    document.addEventListener('click', (e) => { if (!qualityTopBtn?.contains(e.target) && !qualityDropdown?.contains(e.target)) qualityDropdown?.classList.remove('show'); });
-    document.querySelectorAll('#qualityDropdown div').forEach(opt => {
-        opt.addEventListener('click', (e) => {
-            const quality = opt.getAttribute('data-quality');
-            if (currentMovie && currentMovie.qualityUrls && currentMovie.qualityUrls[quality]) {
-                const vid = document.getElementById('detailVideoPlayer');
-                const wasPlaying = !vid.paused;
-                vid.src = currentMovie.qualityUrls[quality];
-                vid.load();
-                if (wasPlaying) vid.play();
-                document.getElementById('currentQualityLabel').innerText = quality + 'p';
-            } else alert(`⚠️ ${quality}p not available`);
-            qualityDropdown.classList.remove('show');
-            showOverlay();
-        });
-    });
-
-    // Navigation & UI
-    document.getElementById('backToHomeBtn')?.addEventListener('click', showHome);
-    document.getElementById('backFromContactBtn')?.addEventListener('click', showHome);
-    document.getElementById('backFromRequestBtn')?.addEventListener('click', showHome);
-    document.getElementById('contactPageBtn')?.addEventListener('click', () => { closeMenu(); document.getElementById('homePage').classList.remove('active-page'); document.getElementById('movieDetailPage').classList.remove('active-page'); document.getElementById('movieRequestPage').classList.remove('active-page'); document.getElementById('contactPage').classList.add('active-page'); });
-    document.getElementById('movieRequestBtn')?.addEventListener('click', showMovieRequest);
-    document.getElementById('searchInput')?.addEventListener('input', (e) => { currentFilter.searchTerm = e.target.value; renderHome(); });
-    document.getElementById('requestForm')?.addEventListener('submit', handleMovieRequest);
-    
-    function closeMenu() { document.getElementById("sideMenu").classList.remove("open"); document.getElementById("menuOverlay").classList.remove("active"); }
-    function openMenu() { document.getElementById("sideMenu").classList.add("open"); document.getElementById("menuOverlay").classList.add("active"); }
-    document.getElementById("hamburgerBtn").addEventListener("click", openMenu);
-    document.getElementById("closeMenuBtn").addEventListener("click", closeMenu);
-    document.getElementById("menuOverlay").addEventListener("click", closeMenu);
-    document.querySelector(".menu-item[data-filter='all']")?.addEventListener("click", () => { currentFilter = { searchTerm: currentFilter.searchTerm, type: "all", genre: null, language: null }; renderHome(); closeMenu(); });
-    document.querySelector(".menu-item[data-filter='tv']")?.addEventListener("click", () => { currentFilter = { searchTerm: currentFilter.searchTerm, type: "tv", genre: null, language: null }; renderHome(); closeMenu(); });
-    const langItem = document.getElementById("languageItem"), langSub = document.getElementById("languageSub");
-    langItem?.addEventListener("click", (e) => { e.stopPropagation(); langSub.classList.toggle("show"); });
-    const genreItem = document.getElementById("genreItem"), genreSub = document.getElementById("genreSub");
-    genreItem?.addEventListener("click", (e) => { e.stopPropagation(); genreSub.classList.toggle("show"); });
-    document.querySelectorAll("#languageSub span").forEach(span => { span.addEventListener("click", () => { currentFilter.language = span.getAttribute("data-lang"); currentFilter.genre = null; currentFilter.type = "all"; renderHome(); closeMenu(); }); });
-    document.querySelectorAll("#genreSub span").forEach(span => { span.addEventListener("click", () => { currentFilter.genre = span.getAttribute("data-genre"); currentFilter.language = null; currentFilter.type = "all"; renderHome(); closeMenu(); }); });
-    
-    const themeBtn = document.getElementById("themeToggleBtn");
-    themeBtn.addEventListener("click", () => { document.body.classList.toggle("dark"); const icon = themeBtn.querySelector("i"); if(document.body.classList.contains("dark")) { icon.classList.remove("fa-sun"); icon.classList.add("fa-moon"); } else { icon.classList.remove("fa-moon"); icon.classList.add("fa-sun"); } });
-    
-    initIndexedDB().then(async () => {
-        await loadMovies();
-        if (typeof google !== 'undefined') initializeGoogleSignIn();
         renderHome();
-        updateRequestPageVisibility();
+    }
+    function showMovieRequest() { closeMenu(); showHome(); document.getElementById('movieRequestPage').classList.add('active-page'); document.getElementById('homePage').classList.remove('active-page'); updateUserUI(); }
+    function showContact() { closeMenu(); showHome(); document.getElementById('contactPage').classList.add('active-page'); document.getElementById('homePage').classList.remove('active-page'); }
+    function openMenu() { document.getElementById('sideMenu').classList.add('open'); document.getElementById('menuOverlay').classList.add('active'); }
+    function closeMenu() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('active'); }
+    function escapeHtml(str) { return String(str || '').replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => { currentFilter.searchTerm = e.target.value; renderHome(); });
+    document.getElementById('backToHomeBtn').addEventListener('click', showHome);
+    document.getElementById('backFromRequestBtn').addEventListener('click', showHome);
+    document.getElementById('backFromContactBtn').addEventListener('click', showHome);
+    document.getElementById('movieRequestBtn').addEventListener('click', showMovieRequest);
+    document.getElementById('contactBtn').addEventListener('click', showContact);
+    document.getElementById('menuToggle').addEventListener('click', openMenu);
+    document.getElementById('closeMenu').addEventListener('click', closeMenu);
+    document.getElementById('menuOverlay').addEventListener('click', closeMenu);
+    document.querySelectorAll(".menu-item[data-filter='all']").forEach(el => el.addEventListener('click', () => { currentFilter = { searchTerm: currentFilter.searchTerm, type: "all", genre: null, language: null }; renderHome(); closeMenu(); }));
+    document.querySelectorAll(".menu-item[data-filter='tv']").forEach(el => el.addEventListener('click', () => { currentFilter = { searchTerm: currentFilter.searchTerm, type: "tv", genre: null, language: null }; renderHome(); closeMenu(); }));
+    document.getElementById('languageItem')?.addEventListener('click', () => document.getElementById('languageSub').classList.toggle('show'));
+    document.getElementById('genreItem')?.addEventListener('click', () => document.getElementById('genreSub').classList.toggle('show'));
+    document.querySelectorAll('#languageSub span').forEach(s => s.addEventListener('click', () => { currentFilter = { searchTerm: currentFilter.searchTerm, type: "all", genre: null, language: s.dataset.lang }; renderHome(); closeMenu(); }));
+    document.querySelectorAll('#genreSub span').forEach(s => s.addEventListener('click', () => { currentFilter = { searchTerm: currentFilter.searchTerm, type: "all", genre: s.dataset.genre, language: null }; renderHome(); closeMenu(); }));
+    
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        document.documentElement.style.setProperty('--bg-primary', isDark ? '#0f0f1a' : '#f5f5f5');
+        document.documentElement.style.setProperty('--bg-card', isDark ? '#1a1a2e' : '#ffffff');
+        document.documentElement.style.setProperty('--text-primary', isDark ? '#ffffff' : '#1a1a2e');
     });
-    window.addEventListener("storage", async (e) => { if (e.key === STORAGE_KEY) { await loadMovies(); if (document.getElementById('homePage').classList.contains('active-page')) renderHome(); } });
+
+    loadMovies();
+    if (typeof google !== 'undefined') initializeGoogleSignIn();
 </script>
 </body>
 </html>
