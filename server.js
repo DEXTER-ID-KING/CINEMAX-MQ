@@ -9,42 +9,71 @@ const app = express();
 // ==================== Middleware ====================
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '5000mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ==================== MongoDB Connection ====================
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://dexter:dexter4321@cluster0.ymfug48.mongodb.net/DEXTER_S?retryWrites=true&w=majority';
+// ==================== MongoDB Atlas Connection ====================
+// ✅ Uses Atlas URI - works on any hosting (Vercel, Railway, Render, VPS, etc.)
+const MONGODB_URI = process.env.MONGODB_URI || 
+    'mongodb+srv://dexter:dexter4321@cluster0.ymfug48.mongodb.net/DEXTER_S?retryWrites=true&w=majority';
+
+let isConnected = false;
 
 const connectDB = async () => {
+    if (isConnected) return;
+    
     try {
+        console.log('🔄 Connecting to MongoDB Atlas...');
+        
         await mongoose.connect(MONGODB_URI, {
             serverSelectionTimeoutMS: 30000,
             socketTimeoutMS: 45000,
             connectTimeoutMS: 30000,
             maxPoolSize: 10,
-            family: 4, // Force IPv4 - fixes most local connection issues
+            // ❌ Removed family: 4 - not needed for Atlas
+            // ❌ Removed localhost settings
         });
-        console.log('✅ MongoDB Connected successfully to:', MONGODB_URI);
+        
+        isConnected = true;
+        console.log('✅ MongoDB Atlas Connected!');
+        console.log('📦 Database:', mongoose.connection.db.databaseName);
+        console.log('🌐 Host:', mongoose.connection.host);
+        
     } catch (err) {
-        console.error('❌ MongoDB Connection error:', err.message);
-        console.log('💡 Troubleshooting tips:');
-        console.log('   1. Run: sudo systemctl start mongod');
-        console.log('   2. Check: sudo systemctl status mongod');
-        console.log('   3. Or use MongoDB Atlas cloud URI in .env');
+        isConnected = false;
+        console.error('❌ MongoDB Atlas Connection Error:', err.message);
+        console.log('');
+        console.log('💡 Fix Checklist:');
+        console.log('   1. Check Atlas URI is correct');
+        console.log('   2. Whitelist your IP in Atlas: Network Access → Add IP → 0.0.0.0/0');
+        console.log('   3. Check username/password in URI');
+        console.log('   4. Make sure cluster is not paused in Atlas dashboard');
+        console.log('');
         console.log('   Retrying in 5 seconds...');
         setTimeout(connectDB, 5000);
     }
 };
 
-connectDB();
+// Connection Events
+mongoose.connection.on('connected', () => {
+    isConnected = true;
+    console.log('🟢 Mongoose connected to Atlas');
+});
 
-mongoose.connection.on('connected', () => console.log('🔗 Mongoose connected'));
-mongoose.connection.on('error', (err) => console.error('🔴 Mongoose error:', err));
+mongoose.connection.on('error', (err) => {
+    isConnected = false;
+    console.error('🔴 Mongoose error:', err.message);
+});
+
 mongoose.connection.on('disconnected', () => {
+    isConnected = false;
     console.log('🔌 Mongoose disconnected. Reconnecting...');
     setTimeout(connectDB, 3000);
 });
+
+// Initial connection
+connectDB();
 
 // ==================== Models ====================
 const EpisodeSchema = new mongoose.Schema({
@@ -87,7 +116,7 @@ const MovieSchema = new mongoose.Schema({
 
 const Movie = mongoose.model('Movie', MovieSchema);
 
-// ==================== Admin Authentication ====================
+// ==================== Admin Auth ====================
 const ADMIN_PIN = process.env.ADMIN_PIN || '200727';
 
 const adminAuth = (req, res, next) => {
@@ -96,38 +125,41 @@ const adminAuth = (req, res, next) => {
     res.status(401).json({ error: 'Unauthorized', message: 'Invalid admin PIN' });
 };
 
-// ==================== DB Status Check Middleware ====================
-const checkDBConnection = (req, res, next) => {
+// ==================== DB Check Middleware ====================
+const checkDB = (req, res, next) => {
     if (mongoose.connection.readyState !== 1) {
         return res.status(503).json({
             error: 'Database not connected',
-            message: 'MongoDB is not ready. Please wait or check server logs.',
-            readyState: mongoose.connection.readyState
+            message: 'MongoDB Atlas is not ready. Please wait...',
+            readyState: mongoose.connection.readyState,
+            tip: 'Check Atlas IP whitelist: 0.0.0.0/0'
         });
     }
     next();
 };
 
-// ==================== API Routes ====================
+// ==================== Routes ====================
 
-// Health check
+// Health Check
 app.get('/api/health', (req, res) => {
     const states = {
         0: 'disconnected',
-        1: 'connected',
+        1: 'connected', 
         2: 'connecting',
         3: 'disconnecting'
     };
     res.json({
         status: 'ok',
-        mongodb: states[mongoose.connection.readyState] || 'unknown',
+        mongodb: states[mongoose.connection.readyState],
         readyState: mongoose.connection.readyState,
+        host: mongoose.connection.host || 'not connected',
+        database: mongoose.connection.db?.databaseName || 'not connected',
         timestamp: new Date().toISOString()
     });
 });
 
 // Get all movies
-app.get('/api/movies', checkDBConnection, async (req, res) => {
+app.get('/api/movies', checkDB, async (req, res) => {
     try {
         const { type, trending, latest, search, limit } = req.query;
         let query = {};
@@ -137,11 +169,13 @@ app.get('/api/movies', checkDBConnection, async (req, res) => {
         if (latest === 'true') query.isLatest = true;
         if (search) query.title = { $regex: search, $options: 'i' };
 
-        const limitNum = parseInt(limit) || 100;
-        const movies = await Movie.find(query)
+        const limitNum = parseInt(limit) || 200;
+
+        const movies = await Movie
+            .find(query)
             .sort({ createdAt: -1 })
             .limit(limitNum)
-            .lean(); // lean() for better performance
+            .lean();
 
         res.json(movies);
     } catch (error) {
@@ -151,7 +185,7 @@ app.get('/api/movies', checkDBConnection, async (req, res) => {
 });
 
 // Get single movie
-app.get('/api/movies/:id', checkDBConnection, async (req, res) => {
+app.get('/api/movies/:id', checkDB, async (req, res) => {
     try {
         const movie = await Movie.findById(req.params.id).lean();
         if (!movie) return res.status(404).json({ error: 'Movie not found' });
@@ -162,7 +196,7 @@ app.get('/api/movies/:id', checkDBConnection, async (req, res) => {
 });
 
 // Create or Update movie
-app.post('/api/movies', adminAuth, checkDBConnection, async (req, res) => {
+app.post('/api/movies', adminAuth, checkDB, async (req, res) => {
     try {
         const {
             id, title, year, rating, quality, genre, language, type,
@@ -211,39 +245,35 @@ app.post('/api/movies', adminAuth, checkDBConnection, async (req, res) => {
                 movieData,
                 { new: true, runValidators: true }
             );
-            if (!movie) {
-                return res.status(404).json({ error: 'Movie not found for update' });
-            }
-            console.log('✏️ Updated movie:', movie.title);
+            if (!movie) return res.status(404).json({ error: 'Movie not found for update' });
+            console.log('✏️ Updated:', movie.title);
         } else {
             movie = new Movie(movieData);
             await movie.save();
-            console.log('➕ Created movie:', movie.title);
+            console.log('➕ Created:', movie.title);
         }
 
         res.json(movie);
     } catch (error) {
-        console.error('Error saving movie:', error);
+        console.error('Save error:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
 // Delete movie
-app.delete('/api/movies/:id', adminAuth, checkDBConnection, async (req, res) => {
+app.delete('/api/movies/:id', adminAuth, checkDB, async (req, res) => {
     try {
         const movie = await Movie.findByIdAndDelete(req.params.id);
-        if (!movie) {
-            return res.status(404).json({ error: 'Movie not found' });
-        }
-        console.log('🗑️ Deleted movie:', movie.title);
-        res.json({ message: 'Movie deleted successfully', title: movie.title });
+        if (!movie) return res.status(404).json({ error: 'Movie not found' });
+        console.log('🗑️ Deleted:', movie.title);
+        res.json({ message: 'Deleted successfully', title: movie.title });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
 // Increment view count
-app.post('/api/movies/:id/view', checkDBConnection, async (req, res) => {
+app.post('/api/movies/:id/view', checkDB, async (req, res) => {
     try {
         const movie = await Movie.findByIdAndUpdate(
             req.params.id,
@@ -257,8 +287,8 @@ app.post('/api/movies/:id/view', checkDBConnection, async (req, res) => {
     }
 });
 
-// Increment episode view count
-app.post('/api/movies/:movieId/episodes/:episodeId/view', checkDBConnection, async (req, res) => {
+// Increment episode view
+app.post('/api/movies/:movieId/episodes/:episodeId/view', checkDB, async (req, res) => {
     try {
         const movie = await Movie.findById(req.params.movieId);
         if (!movie) return res.status(404).json({ error: 'Movie not found' });
@@ -274,7 +304,7 @@ app.post('/api/movies/:movieId/episodes/:episodeId/view', checkDBConnection, asy
     }
 });
 
-// ==================== Serve HTML Pages ====================
+// ==================== Serve Pages ====================
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
@@ -287,13 +317,13 @@ app.get('*', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`
-╔══════════════════════════════════════════════╗
-║       🎬 CineMax Server Started 🎬           ║
-╠══════════════════════════════════════════════╣
-║  URL:    http://localhost:${PORT}              ║
-║  Admin:  http://localhost:${PORT}/admin        ║
-║  Health: http://localhost:${PORT}/api/health   ║
-║  PIN:    ${ADMIN_PIN}                              ║
-╚══════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════╗
+║         🎬 CineMax Server Started!               ║
+╠══════════════════════════════════════════════════╣
+║  URL:    http://localhost:${PORT}                 ║
+║  Admin:  http://localhost:${PORT}/admin           ║
+║  Health: http://localhost:${PORT}/api/health      ║
+║  DB:     MongoDB Atlas (Cloud)                   ║
+╚══════════════════════════════════════════════════╝
     `);
 });
