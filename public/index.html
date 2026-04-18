@@ -467,7 +467,41 @@
         }
         .comment-user { font-weight: 700; color: var(--accent); }
         .comment-text { margin-left: 47px; margin-bottom: 0.5rem; }
+        .comment-actions {
+            margin-left: 47px;
+            display: flex;
+            gap: 15px;
+        }
+        .comment-action {
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .comment-action:hover { color: var(--accent); }
+        .comment-action.liked { color: var(--accent); }
         .replies { margin-left: 47px; padding-left: 1rem; border-left: 2px solid var(--border); }
+        .reply-form {
+            margin-left: 47px;
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .reply-form input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
+        .reply-form button {
+            background: var(--accent);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+        }
 
         /* Request Page */
         .request-container {
@@ -655,7 +689,7 @@
         <div class="download-options" id="downloadLinks"></div>
         <div class="movie-description" id="movieDescription"></div>
         <div id="episodesContainer" style="display: none;"></div>
-        <div id="commentsSection"></div>
+        <div id="commentsSection" class="comments-section"></div>
     </div>
 </div>
 
@@ -699,11 +733,150 @@
 
 <script>
     const API_URL = window.location.origin + '/api';
+    const GOOGLE_CLIENT_ID = "632556909730-ci1mdngs1jgla3fu7nj8jvfocmh84vcs.apps.googleusercontent.com";
+    
     let moviesArray = [];
     let currentLoggedInUser = null;
+    let authToken = null;
     let currentMovie = null;
     let currentFilter = { searchTerm: "", type: "all", genre: null, language: null };
 
+    // ==================== Google Authentication ====================
+    function initializeGoogleSignIn() {
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true
+        });
+        
+        const savedToken = localStorage.getItem("cinemax_auth_token");
+        const savedUser = localStorage.getItem("cinemax_google_user");
+        
+        if (savedToken && savedUser) {
+            authToken = savedToken;
+            currentLoggedInUser = JSON.parse(savedUser);
+            updateUserUI();
+            verifyTokenWithBackend();
+        } else {
+            updateUserUI();
+        }
+    }
+
+    async function verifyTokenWithBackend() {
+        try {
+            const response = await fetch(`${API_URL}/auth/me`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            
+            if (!response.ok) {
+                localStorage.removeItem("cinemax_auth_token");
+                localStorage.removeItem("cinemax_google_user");
+                authToken = null;
+                currentLoggedInUser = null;
+                updateUserUI();
+            }
+        } catch (error) {
+            console.error('Token verification failed:', error);
+        }
+    }
+
+    async function handleCredentialResponse(response) {
+        try {
+            const token = response.credential;
+            
+            const backendResponse = await fetch(`${API_URL}/auth/google`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token })
+            });
+            
+            if (!backendResponse.ok) throw new Error('Backend authentication failed');
+            
+            const data = await backendResponse.json();
+            
+            if (data.success) {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                
+                currentLoggedInUser = {
+                    name: data.user.name,
+                    email: data.user.email,
+                    picture: data.user.picture,
+                    id: data.user.id
+                };
+                
+                authToken = token;
+                
+                localStorage.setItem("cinemax_auth_token", token);
+                localStorage.setItem("cinemax_google_user", JSON.stringify(currentLoggedInUser));
+                
+                updateUserUI();
+                
+                if (currentMovie) {
+                    loadComments(currentMovie._id);
+                }
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('Login failed. Please try again.');
+        }
+    }
+
+    function logoutGoogle() {
+        google.accounts.id.disableAutoSelect();
+        localStorage.removeItem("cinemax_auth_token");
+        localStorage.removeItem("cinemax_google_user");
+        authToken = null;
+        currentLoggedInUser = null;
+        updateUserUI();
+        
+        if (currentMovie) {
+            loadComments(currentMovie._id);
+        }
+    }
+
+    function updateUserUI() {
+        const section = document.getElementById('userSection');
+        
+        if (currentLoggedInUser) {
+            section.innerHTML = `
+                <div class="user-info">
+                    <img class="user-avatar" src="${escapeHtml(currentLoggedInUser.picture)}" alt="${escapeHtml(currentLoggedInUser.name)}">
+                    <div class="user-details">
+                        <div class="user-name">${escapeHtml(currentLoggedInUser.name)}</div>
+                        <div class="user-email">${escapeHtml(currentLoggedInUser.email)}</div>
+                    </div>
+                    <button class="logout-btn" id="logoutBtn">Logout</button>
+                </div>
+            `;
+            document.getElementById('logoutBtn')?.addEventListener('click', logoutGoogle);
+        } else {
+            section.innerHTML = '<div id="googleBtn" style="width: 100%;"></div>';
+            if (typeof google !== 'undefined') {
+                google.accounts.id.renderButton(
+                    document.getElementById("googleBtn"),
+                    { theme: "filled_blue", size: "large", width: "100%", text: "signin_with", shape: "pill" }
+                );
+            }
+        }
+        
+        const warning = document.getElementById('requestLoginWarning');
+        const form = document.getElementById('requestForm');
+        if (warning && form) {
+            if (currentLoggedInUser) {
+                warning.style.display = 'none';
+                form.style.display = 'block';
+                if (!document.getElementById('reqName').value) {
+                    document.getElementById('reqName').value = currentLoggedInUser.name;
+                }
+            } else {
+                warning.style.display = 'block';
+                form.style.display = 'none';
+            }
+        }
+    }
+
+    // ==================== Movie Functions ====================
     async function loadMovies() {
         try {
             const response = await fetch(`${API_URL}/movies`);
@@ -712,7 +885,8 @@
             renderHome();
         } catch (error) {
             console.error(error);
-            document.getElementById('trendingGrid').innerHTML = '<div class="no-results">❌ Failed to load movies. Make sure MongoDB is running.</div>';
+            document.getElementById('trendingGrid').innerHTML = '<div class="no-results">❌ Failed to load movies. Make sure the server is running.</div>';
+            document.getElementById('latestGrid').innerHTML = '<div class="no-results">❌ Failed to load movies. Make sure the server is running.</div>';
         }
     }
 
@@ -753,10 +927,7 @@
         currentMovie = movie;
         try { await fetch(`${API_URL}/movies/${movie._id}/view`, { method: 'POST' }); } catch(e) {}
         
-        document.getElementById('homePage').classList.remove('active-page');
-        document.getElementById('movieDetailPage').classList.add('active-page');
-        document.getElementById('movieRequestPage').classList.remove('active-page');
-        document.getElementById('contactPage').classList.remove('active-page');
+        showPage('movieDetailPage');
         
         const video = document.getElementById('detailVideoPlayer');
         video.src = movie.videoUrl || movie.directLink || '';
@@ -774,7 +945,7 @@
         if (movie.type === 'tv' && movie.episodes?.length) renderEpisodes(movie);
         else document.getElementById('episodesContainer').style.display = 'none';
         
-        renderComments(movie._id);
+        loadComments(movie._id);
     }
 
     function renderEpisodes(movie) {
@@ -801,73 +972,163 @@
         });
     }
 
-    // Comments, Google Login, Request Form (same as before - kept for functionality)
-    function getCommentsKey(movieId) { return `cinemax_comments_${movieId}`; }
-    function loadComments(movieId) { const stored = localStorage.getItem(getCommentsKey(movieId)); return stored ? JSON.parse(stored) : []; }
-    function saveComments(movieId, comments) { localStorage.setItem(getCommentsKey(movieId), JSON.stringify(comments)); }
-    
-    function renderComments(movieId) {
+    // ==================== Comments ====================
+    async function loadComments(movieId) {
         const container = document.getElementById('commentsSection');
-        if (!currentLoggedInUser) {
-            container.innerHTML = `<h3>Comments</h3><div class="no-results"><i class="fas fa-lock"></i> Login to comment</div>`;
-            return;
+        container.innerHTML = '<h3>Comments</h3><div class="loading"><div class="spinner"></div></div>';
+        
+        try {
+            const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+            const response = await fetch(`${API_URL}/movies/${movieId}/comments`, { headers });
+            const comments = await response.json();
+            
+            renderCommentsList(comments, movieId);
+        } catch (error) {
+            console.error('Failed to load comments:', error);
+            container.innerHTML = '<h3>Comments</h3><div class="no-results">Failed to load comments</div>';
         }
-        const comments = loadComments(movieId);
-        let html = `<h3>Comments (${comments.length})</h3><div class="comment-input-area"><textarea id="newComment" placeholder="Write a comment..."></textarea><button id="postComment">Post</button></div>`;
-        comments.forEach(c => {
-            html += `<div class="comment"><div class="comment-header"><img class="comment-avatar" src="${c.userAvatar || ''}"><span class="comment-user">${escapeHtml(c.username)}</span></div><div class="comment-text">${escapeHtml(c.text)}</div></div>`;
-        });
-        container.innerHTML = html;
-        document.getElementById('postComment')?.addEventListener('click', () => {
-            const text = document.getElementById('newComment').value;
-            if (text.trim()) {
-                const comments = loadComments(movieId);
-                comments.push({ id: Date.now(), username: currentLoggedInUser.name, userAvatar: currentLoggedInUser.picture, text: text.trim(), timestamp: new Date().toISOString(), likes: 0, replies: [] });
-                saveComments(movieId, comments);
-                renderComments(movieId);
-            }
-        });
     }
 
-    const CLIENT_ID = "632556909730-ci1mdngs1jgla3fu7nj8jvfocmh84vcs.apps.googleusercontent.com";
-    function initializeGoogleSignIn() {
-        google.accounts.id.initialize({ client_id: CLIENT_ID, callback: handleCredentialResponse });
-        const saved = localStorage.getItem("cinemax_google_user");
-        if (saved) currentLoggedInUser = JSON.parse(saved);
-        updateUserUI();
-    }
-    function handleCredentialResponse(response) {
-        const payload = JSON.parse(atob(response.credential.split('.')[1]));
-        currentLoggedInUser = { name: payload.name, email: payload.email, picture: payload.picture };
-        localStorage.setItem("cinemax_google_user", JSON.stringify(currentLoggedInUser));
-        updateUserUI();
-        if (currentMovie) renderComments(currentMovie._id);
-    }
-    function logoutGoogle() {
-        localStorage.removeItem("cinemax_google_user");
-        currentLoggedInUser = null;
-        updateUserUI();
-    }
-    function updateUserUI() {
-        const section = document.getElementById('userSection');
+    function renderCommentsList(comments, movieId) {
+        const container = document.getElementById('commentsSection');
+        let html = `<h3>Comments (${comments.length})</h3>`;
+        
         if (currentLoggedInUser) {
-            section.innerHTML = `<div class="user-info"><img class="user-avatar" src="${currentLoggedInUser.picture}"><div class="user-details"><div class="user-name">${escapeHtml(currentLoggedInUser.name)}</div></div><button class="logout-btn" id="logoutBtn">Logout</button></div>`;
-            document.getElementById('logoutBtn')?.addEventListener('click', logoutGoogle);
+            html += `<div class="comment-input-area"><textarea id="newComment" placeholder="Write a comment..."></textarea><button id="postComment">Post</button></div>`;
         } else {
-            section.innerHTML = '<div id="googleBtn"></div>';
-            google.accounts.id.renderButton(document.getElementById("googleBtn"), { theme: "outline", size: "large", width: "100%" });
+            html += `<div class="no-results" style="padding:1rem; margin-bottom:1rem;"><i class="fas fa-lock"></i> Please login to comment</div>`;
         }
-        const warning = document.getElementById('requestLoginWarning');
-        const form = document.getElementById('requestForm');
-        if (warning && form) {
-            if (currentLoggedInUser) { warning.style.display = 'none'; form.style.display = 'block'; }
-            else { warning.style.display = 'block'; form.style.display = 'none'; }
+        
+        comments.forEach(c => {
+            html += renderComment(c, movieId);
+        });
+        
+        container.innerHTML = html;
+        
+        if (currentLoggedInUser) {
+            document.getElementById('postComment')?.addEventListener('click', () => postComment(movieId));
+        }
+        
+        attachCommentEvents(movieId);
+    }
+
+    function renderComment(comment, movieId, isReply = false) {
+        const likedClass = comment.likedByUser ? 'liked' : '';
+        return `
+            <div class="comment" data-comment-id="${comment.id}">
+                <div class="comment-header">
+                    <img class="comment-avatar" src="${comment.user.picture || ''}" alt="${escapeHtml(comment.user.name)}">
+                    <span class="comment-user">${escapeHtml(comment.user.name)}</span>
+                    <span style="margin-left:auto; font-size:0.75rem; color:var(--text-secondary);">${new Date(comment.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div class="comment-text">${escapeHtml(comment.text)}</div>
+                <div class="comment-actions">
+                    <span class="comment-action like-btn ${likedClass}" data-comment-id="${comment.id}">
+                        <i class="far fa-heart"></i> ${comment.likes || 0}
+                    </span>
+                    <span class="comment-action reply-btn" data-comment-id="${comment.id}">
+                        <i class="far fa-comment"></i> Reply
+                    </span>
+                </div>
+                <div class="reply-form" data-comment-id="${comment.id}" style="display:none;">
+                    <input type="text" placeholder="Write a reply...">
+                    <button class="submit-reply">Send</button>
+                </div>
+                ${comment.replies?.length ? `<div class="replies">${comment.replies.map(r => renderComment(r, movieId, true)).join('')}</div>` : ''}
+            </div>
+        `;
+    }
+
+    function attachCommentEvents(movieId) {
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!currentLoggedInUser) {
+                    alert('Please login to like comments');
+                    return;
+                }
+                const commentId = btn.dataset.commentId;
+                try {
+                    const response = await fetch(`${API_URL}/comments/${commentId}/like`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    const data = await response.json();
+                    loadComments(movieId);
+                } catch (error) {
+                    console.error('Failed to like comment:', error);
+                }
+            });
+        });
+        
+        document.querySelectorAll('.reply-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!currentLoggedInUser) {
+                    alert('Please login to reply');
+                    return;
+                }
+                const commentId = btn.dataset.commentId;
+                const form = document.querySelector(`.reply-form[data-comment-id="${commentId}"]`);
+                form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+            });
+        });
+        
+        document.querySelectorAll('.submit-reply').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const form = btn.closest('.reply-form');
+                const commentId = form.dataset.commentId;
+                const input = form.querySelector('input');
+                const text = input.value.trim();
+                
+                if (text) {
+                    try {
+                        await fetch(`${API_URL}/movies/${movieId}/comments`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${authToken}`
+                            },
+                            body: JSON.stringify({ text, parentId: commentId })
+                        });
+                        loadComments(movieId);
+                    } catch (error) {
+                        console.error('Failed to post reply:', error);
+                    }
+                }
+            });
+        });
+    }
+
+    async function postComment(movieId) {
+        const textarea = document.getElementById('newComment');
+        const text = textarea.value.trim();
+        
+        if (!text) return;
+        
+        try {
+            await fetch(`${API_URL}/movies/${movieId}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ text })
+            });
+            textarea.value = '';
+            loadComments(movieId);
+        } catch (error) {
+            console.error('Failed to post comment:', error);
+            alert('Failed to post comment');
         }
     }
 
+    // ==================== Request Form ====================
     document.getElementById('requestForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (!currentLoggedInUser) { alert("Login first"); return; }
+        if (!currentLoggedInUser) { alert("Please login first"); return; }
+        
         const formData = new FormData();
         formData.append('name', document.getElementById('reqName').value || currentLoggedInUser.name);
         formData.append('movie', document.getElementById('reqMovieName').value);
@@ -876,25 +1137,71 @@
         formData.append('description', document.getElementById('reqDescription').value);
         formData.append('_subject', 'Movie Request');
         formData.append('_replyto', currentLoggedInUser.email);
-        const res = await fetch('https://formsubmit.co/ajax/darksamuraimd2@gmail.com', { method: 'POST', body: formData });
-        if (res.ok) alert("Request sent!");
-        else alert("Failed");
+        formData.append('_captcha', 'false');
+        
+        try {
+            const res = await fetch('https://formsubmit.co/ajax/darksamuraimd2@gmail.com', { 
+                method: 'POST', 
+                body: formData 
+            });
+            
+            if (res.ok) {
+                alert("Request sent successfully!");
+                document.getElementById('requestForm').reset();
+                if (currentLoggedInUser) {
+                    document.getElementById('reqName').value = currentLoggedInUser.name;
+                }
+            } else {
+                alert("Failed to send request. Please try again.");
+            }
+        } catch (error) {
+            alert("Network error. Please check your connection.");
+        }
     });
 
+    // ==================== Navigation ====================
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(pageId).classList.add('active-page');
+    }
+
     function showHome() {
-        document.getElementById('homePage').classList.add('active-page');
-        document.getElementById('movieDetailPage').classList.remove('active-page');
-        document.getElementById('movieRequestPage').classList.remove('active-page');
-        document.getElementById('contactPage').classList.remove('active-page');
+        showPage('homePage');
         renderHome();
     }
-    function showMovieRequest() { closeMenu(); showHome(); document.getElementById('movieRequestPage').classList.add('active-page'); document.getElementById('homePage').classList.remove('active-page'); updateUserUI(); }
-    function showContact() { closeMenu(); showHome(); document.getElementById('contactPage').classList.add('active-page'); document.getElementById('homePage').classList.remove('active-page'); }
-    function openMenu() { document.getElementById('sideMenu').classList.add('open'); document.getElementById('menuOverlay').classList.add('active'); }
-    function closeMenu() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('active'); }
-    function escapeHtml(str) { return String(str || '').replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
 
-    document.getElementById('searchInput').addEventListener('input', (e) => { currentFilter.searchTerm = e.target.value; renderHome(); });
+    function showMovieRequest() {
+        closeMenu();
+        showPage('movieRequestPage');
+        updateUserUI();
+    }
+
+    function showContact() {
+        closeMenu();
+        showPage('contactPage');
+    }
+
+    function openMenu() {
+        document.getElementById('sideMenu').classList.add('open');
+        document.getElementById('menuOverlay').classList.add('active');
+    }
+
+    function closeMenu() {
+        document.getElementById('sideMenu').classList.remove('open');
+        document.getElementById('menuOverlay').classList.remove('active');
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
+
+    // ==================== Event Listeners ====================
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        currentFilter.searchTerm = e.target.value;
+        renderHome();
+    });
+
     document.getElementById('backToHomeBtn').addEventListener('click', showHome);
     document.getElementById('backFromRequestBtn').addEventListener('click', showHome);
     document.getElementById('backFromContactBtn').addEventListener('click', showHome);
@@ -903,23 +1210,68 @@
     document.getElementById('menuToggle').addEventListener('click', openMenu);
     document.getElementById('closeMenu').addEventListener('click', closeMenu);
     document.getElementById('menuOverlay').addEventListener('click', closeMenu);
-    document.querySelectorAll(".menu-item[data-filter='all']").forEach(el => el.addEventListener('click', () => { currentFilter = { searchTerm: currentFilter.searchTerm, type: "all", genre: null, language: null }; renderHome(); closeMenu(); }));
-    document.querySelectorAll(".menu-item[data-filter='tv']").forEach(el => el.addEventListener('click', () => { currentFilter = { searchTerm: currentFilter.searchTerm, type: "tv", genre: null, language: null }; renderHome(); closeMenu(); }));
-    document.getElementById('languageItem')?.addEventListener('click', () => document.getElementById('languageSub').classList.toggle('show'));
-    document.getElementById('genreItem')?.addEventListener('click', () => document.getElementById('genreSub').classList.toggle('show'));
-    document.querySelectorAll('#languageSub span').forEach(s => s.addEventListener('click', () => { currentFilter = { searchTerm: currentFilter.searchTerm, type: "all", genre: null, language: s.dataset.lang }; renderHome(); closeMenu(); }));
-    document.querySelectorAll('#genreSub span').forEach(s => s.addEventListener('click', () => { currentFilter = { searchTerm: currentFilter.searchTerm, type: "all", genre: s.dataset.genre, language: null }; renderHome(); closeMenu(); }));
-    
+
+    document.querySelectorAll(".menu-item[data-filter='all']").forEach(el => 
+        el.addEventListener('click', () => {
+            currentFilter = { searchTerm: currentFilter.searchTerm, type: "all", genre: null, language: null };
+            renderHome();
+            closeMenu();
+        })
+    );
+
+    document.querySelectorAll(".menu-item[data-filter='tv']").forEach(el => 
+        el.addEventListener('click', () => {
+            currentFilter = { searchTerm: currentFilter.searchTerm, type: "tv", genre: null, language: null };
+            renderHome();
+            closeMenu();
+        })
+    );
+
+    document.getElementById('languageItem')?.addEventListener('click', () => 
+        document.getElementById('languageSub').classList.toggle('show')
+    );
+
+    document.getElementById('genreItem')?.addEventListener('click', () => 
+        document.getElementById('genreSub').classList.toggle('show')
+    );
+
+    document.querySelectorAll('#languageSub span').forEach(s => 
+        s.addEventListener('click', () => {
+            currentFilter = { searchTerm: currentFilter.searchTerm, type: "all", genre: null, language: s.dataset.lang };
+            renderHome();
+            closeMenu();
+        })
+    );
+
+    document.querySelectorAll('#genreSub span').forEach(s => 
+        s.addEventListener('click', () => {
+            currentFilter = { searchTerm: currentFilter.searchTerm, type: "all", genre: s.dataset.genre, language: null };
+            renderHome();
+            closeMenu();
+        })
+    );
+
+    // Theme toggle
+    let isDark = true;
     document.getElementById('themeToggle').addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
+        isDark = !isDark;
         document.documentElement.style.setProperty('--bg-primary', isDark ? '#0f0f1a' : '#f5f5f5');
         document.documentElement.style.setProperty('--bg-card', isDark ? '#1a1a2e' : '#ffffff');
+        document.documentElement.style.setProperty('--bg-secondary', isDark ? '#16213e' : '#e0e0e0');
         document.documentElement.style.setProperty('--text-primary', isDark ? '#ffffff' : '#1a1a2e');
+        document.documentElement.style.setProperty('--text-secondary', isDark ? '#a0a0b0' : '#666666');
+        document.documentElement.style.setProperty('--border', isDark ? '#2c2c38' : '#dddddd');
+        document.documentElement.style.setProperty('--input-bg', isDark ? '#1e1e2a' : '#ffffff');
+        document.getElementById('themeToggle').innerHTML = isDark ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
     });
 
+    // Initialize
     loadMovies();
-    if (typeof google !== 'undefined') initializeGoogleSignIn();
+    if (typeof google !== 'undefined') {
+        initializeGoogleSignIn();
+    } else {
+        console.error('Google API not loaded');
+    }
 </script>
 </body>
 </html>
