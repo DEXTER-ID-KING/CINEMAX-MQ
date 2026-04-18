@@ -1,120 +1,108 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const { Pool } = require('pg');
 require('dotenv').config();
 
 const app = express();
 
 // ==================== Middleware ====================
 app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ==================== MongoDB Atlas Connection ====================
-// ✅ Uses Atlas URI - works on any hosting (Vercel, Railway, Render, VPS, etc.)
-const MONGODB_URI = process.env.MONGODB_URI || 
-    'mongodb+srv://dexter:dexter4321@cluster0.ymfug48.mongodb.net/DEXTER_S?retryWrites=true&w=majority';
+// ==================== PostgreSQL (Neon) Connection ====================
+const DATABASE_URL = process.env.DATABASE_URL || 
+    'postgresql://neondb_owner:npg_sSP2ILrA4TRB@ep-quiet-rain-ana555fb-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
 
-let isConnected = false;
+const pool = new Pool({
+    connectionString: DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    },
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000
+});
 
-const connectDB = async () => {
-    if (isConnected) return;
-    
+// Test connection
+pool.query('SELECT NOW()')
+    .then(res => {
+        console.log('✅ PostgreSQL (Neon) Connected!');
+        console.log('⏰ Server Time:', res.rows[0].now);
+    })
+    .catch(err => {
+        console.error('❌ PostgreSQL Connection Error:', err.message);
+    });
+
+// ==================== Create Tables ====================
+async function initDB() {
     try {
-        console.log('🔄 Connecting to MongoDB Atlas...');
-        
-        await mongoose.connect(MONGODB_URI, {
-            serverSelectionTimeoutMS: 30000,
-            socketTimeoutMS: 45000,
-            connectTimeoutMS: 30000,
-            maxPoolSize: 10,
-            // ❌ Removed family: 4 - not needed for Atlas
-            // ❌ Removed localhost settings
-        });
-        
-        isConnected = true;
-        console.log('✅ MongoDB Atlas Connected!');
-        console.log('📦 Database:', mongoose.connection.db.databaseName);
-        console.log('🌐 Host:', mongoose.connection.host);
-        
+        // Movies table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS movies (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(500) NOT NULL,
+                year INTEGER DEFAULT 2025,
+                rating DECIMAL(3,1) DEFAULT 7.0,
+                quality VARCHAR(20) DEFAULT 'HD',
+                genre VARCHAR(300) DEFAULT '',
+                language VARCHAR(100) DEFAULT 'English',
+                type VARCHAR(10) DEFAULT 'movie' CHECK (type IN ('movie', 'tv')),
+                is_trending BOOLEAN DEFAULT false,
+                is_latest BOOLEAN DEFAULT false,
+                poster_img TEXT DEFAULT '',
+                video_url TEXT DEFAULT '',
+                direct_link TEXT DEFAULT '',
+                telegram_link TEXT DEFAULT '',
+                drive_link TEXT DEFAULT '',
+                description TEXT DEFAULT '',
+                views INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Episodes table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS episodes (
+                id SERIAL PRIMARY KEY,
+                movie_id INTEGER REFERENCES movies(id) ON DELETE CASCADE,
+                season INTEGER NOT NULL,
+                episode INTEGER NOT NULL,
+                title VARCHAR(500) DEFAULT '',
+                quality VARCHAR(20) DEFAULT 'HD',
+                video_url TEXT DEFAULT '',
+                direct_link TEXT DEFAULT '',
+                telegram_link TEXT DEFAULT '',
+                drive_link TEXT DEFAULT '',
+                views INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Index for faster queries
+        await pool.query(`
+            CREATE INDEX IF NOT EXISTS idx_movies_type ON movies(type)
+        `);
+        await pool.query(`
+            CREATE INDEX IF NOT EXISTS idx_movies_trending ON movies(is_trending)
+        `);
+        await pool.query(`
+            CREATE INDEX IF NOT EXISTS idx_movies_latest ON movies(is_latest)
+        `);
+        await pool.query(`
+            CREATE INDEX IF NOT EXISTS idx_episodes_movie ON episodes(movie_id)
+        `);
+
+        console.log('✅ Database tables ready!');
     } catch (err) {
-        isConnected = false;
-        console.error('❌ MongoDB Atlas Connection Error:', err.message);
-        console.log('');
-        console.log('💡 Fix Checklist:');
-        console.log('   1. Check Atlas URI is correct');
-        console.log('   2. Whitelist your IP in Atlas: Network Access → Add IP → 0.0.0.0/0');
-        console.log('   3. Check username/password in URI');
-        console.log('   4. Make sure cluster is not paused in Atlas dashboard');
-        console.log('');
-        console.log('   Retrying in 5 seconds...');
-        setTimeout(connectDB, 5000);
+        console.error('❌ DB Init Error:', err.message);
     }
-};
+}
 
-// Connection Events
-mongoose.connection.on('connected', () => {
-    isConnected = true;
-    console.log('🟢 Mongoose connected to Atlas');
-});
-
-mongoose.connection.on('error', (err) => {
-    isConnected = false;
-    console.error('🔴 Mongoose error:', err.message);
-});
-
-mongoose.connection.on('disconnected', () => {
-    isConnected = false;
-    console.log('🔌 Mongoose disconnected. Reconnecting...');
-    setTimeout(connectDB, 3000);
-});
-
-// Initial connection
-connectDB();
-
-// ==================== Models ====================
-const EpisodeSchema = new mongoose.Schema({
-    id: { type: String, default: () => Date.now().toString() },
-    season: { type: Number, required: true },
-    episode: { type: Number, required: true },
-    title: String,
-    quality: { type: String, default: 'HD' },
-    videoUrl: String,
-    directLink: String,
-    telegramLink: String,
-    driveLink: String,
-    gofileFileId: String,
-    views: { type: Number, default: 0 },
-    createdAt: { type: Date, default: Date.now }
-});
-
-const MovieSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    year: { type: Number, default: 2025 },
-    rating: { type: Number, default: 7.0 },
-    quality: { type: String, default: 'HD' },
-    genre: String,
-    language: { type: String, default: 'English' },
-    type: { type: String, enum: ['movie', 'tv'], default: 'movie' },
-    isTrending: { type: Boolean, default: false },
-    isLatest: { type: Boolean, default: false },
-    posterImg: String,
-    videoUrl: String,
-    directLink: String,
-    telegramLink: String,
-    driveLink: String,
-    gofileFileId: String,
-    description: String,
-    views: { type: Number, default: 0 },
-    episodes: [EpisodeSchema],
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
-});
-
-const Movie = mongoose.model('Movie', MovieSchema);
+initDB();
 
 // ==================== Admin Auth ====================
 const ADMIN_PIN = process.env.ADMIN_PIN || '200727';
@@ -122,60 +110,124 @@ const ADMIN_PIN = process.env.ADMIN_PIN || '200727';
 const adminAuth = (req, res, next) => {
     const pin = req.headers['x-admin-pin'] || req.body?.pin;
     if (pin === ADMIN_PIN) return next();
-    res.status(401).json({ error: 'Unauthorized', message: 'Invalid admin PIN' });
+    res.status(401).json({ error: 'Unauthorized' });
 };
 
-// ==================== DB Check Middleware ====================
-const checkDB = (req, res, next) => {
-    if (mongoose.connection.readyState !== 1) {
-        return res.status(503).json({
-            error: 'Database not connected',
-            message: 'MongoDB Atlas is not ready. Please wait...',
-            readyState: mongoose.connection.readyState,
-            tip: 'Check Atlas IP whitelist: 0.0.0.0/0'
-        });
-    }
-    next();
-};
+// ==================== Helper: Get movie with episodes ====================
+async function getMovieWithEpisodes(movieId) {
+    const movieResult = await pool.query('SELECT * FROM movies WHERE id = $1', [movieId]);
+    if (movieResult.rows.length === 0) return null;
 
-// ==================== Routes ====================
+    const movie = movieResult.rows[0];
+
+    const episodesResult = await pool.query(
+        'SELECT * FROM episodes WHERE movie_id = $1 ORDER BY season, episode',
+        [movieId]
+    );
+
+    // Format to camelCase for frontend
+    return {
+        _id: movie.id.toString(),
+        title: movie.title,
+        year: movie.year,
+        rating: parseFloat(movie.rating),
+        quality: movie.quality,
+        genre: movie.genre,
+        language: movie.language,
+        type: movie.type,
+        isTrending: movie.is_trending,
+        isLatest: movie.is_latest,
+        posterImg: movie.poster_img,
+        videoUrl: movie.video_url,
+        directLink: movie.direct_link,
+        telegramLink: movie.telegram_link,
+        driveLink: movie.drive_link,
+        description: movie.description,
+        views: movie.views,
+        createdAt: movie.created_at,
+        updatedAt: movie.updated_at,
+        episodes: episodesResult.rows.map(ep => ({
+            id: ep.id.toString(),
+            movieId: ep.movie_id,
+            season: ep.season,
+            episode: ep.episode,
+            title: ep.title,
+            quality: ep.quality,
+            videoUrl: ep.video_url,
+            directLink: ep.direct_link,
+            telegramLink: ep.telegram_link,
+            driveLink: ep.drive_link,
+            views: ep.views,
+            createdAt: ep.created_at
+        }))
+    };
+}
+
+// ==================== API Routes ====================
 
 // Health Check
-app.get('/api/health', (req, res) => {
-    const states = {
-        0: 'disconnected',
-        1: 'connected', 
-        2: 'connecting',
-        3: 'disconnecting'
-    };
-    res.json({
-        status: 'ok',
-        mongodb: states[mongoose.connection.readyState],
-        readyState: mongoose.connection.readyState,
-        host: mongoose.connection.host || 'not connected',
-        database: mongoose.connection.db?.databaseName || 'not connected',
-        timestamp: new Date().toISOString()
-    });
+app.get('/api/health', async (req, res) => {
+    try {
+        const dbCheck = await pool.query('SELECT NOW() as time, current_database() as db');
+        const countResult = await pool.query('SELECT COUNT(*) as count FROM movies');
+
+        res.json({
+            status: 'ok',
+            database: 'PostgreSQL (Neon)',
+            dbName: dbCheck.rows[0].db,
+            serverTime: dbCheck.rows[0].time,
+            moviesCount: parseInt(countResult.rows[0].count),
+            timestamp: new Date().toISOString()
+        });
+    } catch (err) {
+        res.json({
+            status: 'error',
+            database: 'PostgreSQL (Neon)',
+            error: err.message
+        });
+    }
 });
 
 // Get all movies
-app.get('/api/movies', checkDB, async (req, res) => {
+app.get('/api/movies', async (req, res) => {
     try {
         const { type, trending, latest, search, limit } = req.query;
-        let query = {};
 
-        if (type) query.type = type;
-        if (trending === 'true') query.isTrending = true;
-        if (latest === 'true') query.isLatest = true;
-        if (search) query.title = { $regex: search, $options: 'i' };
+        let query = 'SELECT * FROM movies WHERE 1=1';
+        let params = [];
+        let paramIndex = 1;
 
-        const limitNum = parseInt(limit) || 200;
+        if (type) {
+            query += ` AND type = $${paramIndex++}`;
+            params.push(type);
+        }
+        if (trending === 'true') {
+            query += ' AND is_trending = true';
+        }
+        if (latest === 'true') {
+            query += ' AND is_latest = true';
+        }
+        if (search) {
+            query += ` AND (LOWER(title) LIKE $${paramIndex++} OR LOWER(genre) LIKE $${paramIndex++})`;
+            const searchTerm = `%${search.toLowerCase()}%`;
+            params.push(searchTerm, searchTerm);
+        }
 
-        const movies = await Movie
-            .find(query)
-            .sort({ createdAt: -1 })
-            .limit(limitNum)
-            .lean();
+        query += ' ORDER BY created_at DESC';
+
+        if (limit) {
+            query += ` LIMIT $${paramIndex++}`;
+            params.push(parseInt(limit));
+        }
+
+        const result = await pool.query(query, params);
+
+        // Get episodes for each movie
+        const movies = [];
+        for (const movie of result.rows) {
+            const formatted = await getMovieWithEpisodes(movie.id);
+            if (formatted) movies.push(formatted);
+        }
 
         res.json(movies);
     } catch (error) {
@@ -185,9 +237,9 @@ app.get('/api/movies', checkDB, async (req, res) => {
 });
 
 // Get single movie
-app.get('/api/movies/:id', checkDB, async (req, res) => {
+app.get('/api/movies/:id', async (req, res) => {
     try {
-        const movie = await Movie.findById(req.params.id).lean();
+        const movie = await getMovieWithEpisodes(parseInt(req.params.id));
         if (!movie) return res.status(404).json({ error: 'Movie not found' });
         res.json(movie);
     } catch (error) {
@@ -196,64 +248,126 @@ app.get('/api/movies/:id', checkDB, async (req, res) => {
 });
 
 // Create or Update movie
-app.post('/api/movies', adminAuth, checkDB, async (req, res) => {
+app.post('/api/movies', adminAuth, async (req, res) => {
     try {
         const {
             id, title, year, rating, quality, genre, language, type,
             isTrending, isLatest, posterImg, videoUrl, directLink,
-            telegramLink, driveLink, description, episodes, gofileFileId
+            telegramLink, driveLink, description, episodes
         } = req.body;
 
-        if (!title) {
+        if (!title || !title.trim()) {
             return res.status(400).json({ error: 'Title is required' });
         }
 
         let episodesArray = [];
         if (episodes) {
-            episodesArray = typeof episodes === 'string'
-                ? JSON.parse(episodes)
-                : episodes;
+            episodesArray = typeof episodes === 'string' ? JSON.parse(episodes) : episodes;
         }
 
-        const movieData = {
-            title: title.trim(),
-            year: parseInt(year) || 2025,
-            rating: parseFloat(rating) || 7.0,
-            quality: quality || 'HD',
-            genre: genre || '',
-            language: language || 'English',
-            type: type || 'movie',
-            isTrending: isTrending === 'true' || isTrending === true,
-            isLatest: isLatest === 'true' || isLatest === true,
-            posterImg: posterImg || '',
-            videoUrl: videoUrl || '',
-            directLink: directLink || videoUrl || '',
-            telegramLink: telegramLink || '',
-            driveLink: driveLink || '',
-            gofileFileId: gofileFileId || '',
-            description: description || '',
-            episodes: episodesArray,
-            updatedAt: new Date()
-        };
-
-        let movie;
         const isValidId = id && id !== 'undefined' && id !== 'null' && id !== '';
 
+        let movieId;
+
         if (isValidId) {
-            movie = await Movie.findByIdAndUpdate(
-                id,
-                movieData,
-                { new: true, runValidators: true }
-            );
-            if (!movie) return res.status(404).json({ error: 'Movie not found for update' });
-            console.log('✏️ Updated:', movie.title);
+            // Update existing movie
+            const updateResult = await pool.query(`
+                UPDATE movies SET
+                    title = $1, year = $2, rating = $3, quality = $4,
+                    genre = $5, language = $6, type = $7,
+                    is_trending = $8, is_latest = $9,
+                    poster_img = $10, video_url = $11, direct_link = $12,
+                    telegram_link = $13, drive_link = $14,
+                    description = $15, updated_at = CURRENT_TIMESTAMP
+                WHERE id = $16
+                RETURNING id
+            `, [
+                title.trim(),
+                parseInt(year) || 2025,
+                parseFloat(rating) || 7.0,
+                quality || 'HD',
+                genre || '',
+                language || 'English',
+                type || 'movie',
+                isTrending === true || isTrending === 'true',
+                isLatest === true || isLatest === 'true',
+                posterImg || '',
+                videoUrl || '',
+                directLink || videoUrl || '',
+                telegramLink || '',
+                driveLink || '',
+                description || '',
+                parseInt(id)
+            ]);
+
+            if (updateResult.rows.length === 0) {
+                return res.status(404).json({ error: 'Movie not found' });
+            }
+
+            movieId = updateResult.rows[0].id;
+
+            // Delete old episodes and re-insert
+            await pool.query('DELETE FROM episodes WHERE movie_id = $1', [movieId]);
+
+            console.log('✏️ Updated:', title);
         } else {
-            movie = new Movie(movieData);
-            await movie.save();
-            console.log('➕ Created:', movie.title);
+            // Create new movie
+            const insertResult = await pool.query(`
+                INSERT INTO movies (
+                    title, year, rating, quality, genre, language, type,
+                    is_trending, is_latest, poster_img, video_url, direct_link,
+                    telegram_link, drive_link, description
+                ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+                RETURNING id
+            `, [
+                title.trim(),
+                parseInt(year) || 2025,
+                parseFloat(rating) || 7.0,
+                quality || 'HD',
+                genre || '',
+                language || 'English',
+                type || 'movie',
+                isTrending === true || isTrending === 'true',
+                isLatest === true || isLatest === 'true',
+                posterImg || '',
+                videoUrl || '',
+                directLink || videoUrl || '',
+                telegramLink || '',
+                driveLink || '',
+                description || ''
+            ]);
+
+            movieId = insertResult.rows[0].id;
+            console.log('➕ Created:', title, '(ID:', movieId, ')');
         }
 
+        // Insert episodes
+        if (episodesArray.length > 0) {
+            for (const ep of episodesArray) {
+                await pool.query(`
+                    INSERT INTO episodes (
+                        movie_id, season, episode, title, quality,
+                        video_url, direct_link, telegram_link, drive_link
+                    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+                `, [
+                    movieId,
+                    parseInt(ep.season) || 1,
+                    parseInt(ep.episode) || 1,
+                    ep.title || `Episode ${ep.episode}`,
+                    ep.quality || 'HD',
+                    ep.videoUrl || '',
+                    ep.directLink || ep.videoUrl || '',
+                    ep.telegramLink || '',
+                    ep.driveLink || ''
+                ]);
+            }
+            console.log(`   📺 ${episodesArray.length} episodes saved`);
+        }
+
+        // Return full movie with episodes
+        const movie = await getMovieWithEpisodes(movieId);
         res.json(movie);
+
     } catch (error) {
         console.error('Save error:', error);
         res.status(500).json({ error: error.message });
@@ -261,44 +375,100 @@ app.post('/api/movies', adminAuth, checkDB, async (req, res) => {
 });
 
 // Delete movie
-app.delete('/api/movies/:id', adminAuth, checkDB, async (req, res) => {
+app.delete('/api/movies/:id', adminAuth, async (req, res) => {
     try {
-        const movie = await Movie.findByIdAndDelete(req.params.id);
-        if (!movie) return res.status(404).json({ error: 'Movie not found' });
-        console.log('🗑️ Deleted:', movie.title);
-        res.json({ message: 'Deleted successfully', title: movie.title });
+        const movieId = parseInt(req.params.id);
+
+        // Get movie title before delete
+        const movie = await pool.query('SELECT title FROM movies WHERE id = $1', [movieId]);
+        if (movie.rows.length === 0) {
+            return res.status(404).json({ error: 'Movie not found' });
+        }
+
+        const title = movie.rows[0].title;
+
+        // Delete (episodes auto-deleted via CASCADE)
+        await pool.query('DELETE FROM movies WHERE id = $1', [movieId]);
+
+        console.log('🗑️ Deleted:', title);
+        res.json({ message: 'Deleted successfully', title });
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// Increment view count
-app.post('/api/movies/:id/view', checkDB, async (req, res) => {
+// Increment movie views
+app.post('/api/movies/:id/view', async (req, res) => {
     try {
-        const movie = await Movie.findByIdAndUpdate(
-            req.params.id,
-            { $inc: { views: 1 } },
-            { new: true }
+        const result = await pool.query(
+            'UPDATE movies SET views = views + 1 WHERE id = $1 RETURNING views',
+            [parseInt(req.params.id)]
         );
-        if (!movie) return res.status(404).json({ error: 'Movie not found' });
-        res.json({ views: movie.views });
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+        res.json({ views: result.rows[0].views });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// Increment episode view
-app.post('/api/movies/:movieId/episodes/:episodeId/view', checkDB, async (req, res) => {
+// Increment episode views
+app.post('/api/movies/:movieId/episodes/:episodeId/view', async (req, res) => {
     try {
-        const movie = await Movie.findById(req.params.movieId);
-        if (!movie) return res.status(404).json({ error: 'Movie not found' });
+        const result = await pool.query(
+            'UPDATE episodes SET views = views + 1 WHERE id = $1 AND movie_id = $2 RETURNING views',
+            [parseInt(req.params.episodeId), parseInt(req.params.movieId)]
+        );
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+        res.json({ views: result.rows[0].views });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        const episode = movie.episodes.find(ep => ep.id === req.params.episodeId);
-        if (!episode) return res.status(404).json({ error: 'Episode not found' });
+// Search movies
+app.get('/api/search', async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q) return res.json([]);
 
-        episode.views = (episode.views || 0) + 1;
-        await movie.save();
-        res.json({ views: episode.views });
+        const result = await pool.query(`
+            SELECT * FROM movies
+            WHERE LOWER(title) LIKE $1
+               OR LOWER(genre) LIKE $1
+               OR LOWER(description) LIKE $1
+            ORDER BY views DESC, created_at DESC
+            LIMIT 20
+        `, [`%${q.toLowerCase()}%`]);
+
+        const movies = [];
+        for (const row of result.rows) {
+            const formatted = await getMovieWithEpisodes(row.id);
+            if (formatted) movies.push(formatted);
+        }
+
+        res.json(movies);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Stats
+app.get('/api/stats', adminAuth, async (req, res) => {
+    try {
+        const totalMovies = await pool.query("SELECT COUNT(*) FROM movies WHERE type = 'movie'");
+        const totalTV = await pool.query("SELECT COUNT(*) FROM movies WHERE type = 'tv'");
+        const totalEpisodes = await pool.query('SELECT COUNT(*) FROM episodes');
+        const totalViews = await pool.query('SELECT COALESCE(SUM(views), 0) as total FROM movies');
+        const topMovies = await pool.query('SELECT title, views FROM movies ORDER BY views DESC LIMIT 5');
+
+        res.json({
+            movies: parseInt(totalMovies.rows[0].count),
+            tvShows: parseInt(totalTV.rows[0].count),
+            episodes: parseInt(totalEpisodes.rows[0].count),
+            totalViews: parseInt(totalViews.rows[0].total),
+            topContent: topMovies.rows
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -317,13 +487,13 @@ app.get('*', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`
-╔══════════════════════════════════════════════════╗
-║         🎬 CineMax Server Started!               ║
-╠══════════════════════════════════════════════════╣
-║  URL:    http://localhost:${PORT}                 ║
-║  Admin:  http://localhost:${PORT}/admin           ║
-║  Health: http://localhost:${PORT}/api/health      ║
-║  DB:     MongoDB Atlas (Cloud)                   ║
-╚══════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════╗
+║       🎬 CineMax Server Running!              ║
+╠═══════════════════════════════════════════════╣
+║  URL:    http://localhost:${PORT}              ║
+║  Admin:  http://localhost:${PORT}/admin        ║
+║  DB:     PostgreSQL (Neon Cloud)              ║
+║  Mode:   Direct Links (No file upload)        ║
+╚═══════════════════════════════════════════════╝
     `);
 });
